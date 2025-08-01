@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Plus, Trash2, Save } from 'lucide-react'
+import { ArrowLeft, Plus, Trash2, Save, Download } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { supabase } from '../lib/supabase'
 import { calculateComprehensiveGPA, type Course as GPACourse } from '../utils/gpaCalculator'
 
 interface Course {
@@ -31,6 +32,8 @@ const CreateTranscriptPage: React.FC = () => {
   const { user } = useAuth()
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isDownloading, setIsDownloading] = useState(false)
+  const [savedTranscriptId, setSavedTranscriptId] = useState<string | null>(null)
   
   const [studentInfo, setStudentInfo] = useState<StudentInfo>({
     first_name: '',
@@ -167,16 +170,117 @@ const CreateTranscriptPage: React.FC = () => {
 
     setIsSubmitting(true)
     try {
-      // TODO: Implement save functionality
-      console.log('Saving transcript...', { studentInfo, courses })
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Create transcript record
+      const transcriptData = {
+        name: `${studentInfo.first_name} ${studentInfo.last_name} - Transcript`,
+        student_name: `${studentInfo.first_name} ${studentInfo.last_name}`,
+        student_ssn: studentInfo.ssn,
+        data: {
+          student: studentInfo,
+          courses: courses,
+          gpa: gpaData
+        },
+        created_by: user?.id
+      }
+
+      const { data: transcript, error: transcriptError } = await supabase
+        .from('transcripts')
+        .insert([transcriptData])
+        .select()
+        .single()
+
+      if (transcriptError) {
+        throw transcriptError
+      }
+
+      // Save courses
+      const coursesData = courses.map(course => ({
+        transcript_id: transcript.id,
+        course_name: course.course_name,
+        school_name: course.school_name,
+        course_level: course.course_level,
+        grade: course.grade,
+        credits: course.credits,
+        semester: course.semester,
+        year: course.year
+      }))
+
+      const { error: coursesError } = await supabase
+        .from('courses')
+        .insert(coursesData)
+
+      if (coursesError) {
+        throw coursesError
+      }
+
+      setSavedTranscriptId(transcript.id)
       alert('Transcript saved successfully!')
     } catch (error) {
       console.error('Error saving transcript:', error)
-      alert('Error saving transcript. Please try again.')
+      alert(`Error saving transcript: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const handleDownloadPDF = async () => {
+    if (!validateForm()) {
+      return
+    }
+
+    setIsDownloading(true)
+    try {
+      let transcriptId = savedTranscriptId
+
+      // Save transcript first if not already saved
+      if (!transcriptId) {
+        await handleSaveTranscript()
+        transcriptId = savedTranscriptId
+      }
+
+      if (!transcriptId) {
+        throw new Error('Failed to save transcript')
+      }
+
+      // Generate PDF
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+      
+      const response = await fetch(`${supabaseUrl}/functions/v1/generate-pdf`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseAnonKey}`,
+        },
+        body: JSON.stringify({
+          transcriptId: transcriptId,
+          studentInfo: studentInfo,
+          courses: courses,
+          gpaData: gpaData
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF')
+      }
+
+      // Download the PDF
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.style.display = 'none'
+      a.href = url
+      a.download = `${studentInfo.first_name}_${studentInfo.last_name}_Transcript.pdf`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+
+    } catch (error) {
+      console.error('Error downloading PDF:', error)
+      alert(`Error generating PDF: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
+      setIsDownloading(false)
     }
   }
 
@@ -683,7 +787,7 @@ const CreateTranscriptPage: React.FC = () => {
 
                 {/* Footer */}
                 <div className="mt-6 pt-3 border-t border-black">
-                  <div className="flex justify-between items-center text-xs text-black">
+                  <div className="flex justify-between items-start text-xs text-black">
                     <div>
                       <p>Transcript generated on {new Date().toLocaleDateString()}</p>
                       <p>Generated by: {user?.name}</p>
@@ -691,6 +795,11 @@ const CreateTranscriptPage: React.FC = () => {
                     <div className="text-right">
                       <p className="font-bold">Legend College Preparatory</p>
                       <p>Registrar's Office</p>
+                      <div className="mt-4 pt-2 border-t border-black">
+                        <p className="mb-2">Principal Signature:</p>
+                        <div className="border-b border-black w-32 mb-2"></div>
+                        <p>Date: _______________</p>
+                      </div>
                     </div>
                   </div>
                 </div>

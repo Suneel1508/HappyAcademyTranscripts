@@ -1,10 +1,13 @@
 import React from 'react'
+import { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import { FileText, Users, LogOut, Plus, Eye, UserCheck } from 'lucide-react'
+import { FileText, Users, LogOut, Plus, Eye, UserCheck, Wifi } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import ConnectionStatus from '../components/ConnectionStatus'
 
 const DashboardPage: React.FC = () => {
   const { user, logout } = useAuth()
+  const [showConnectionStatus, setShowConnectionStatus] = useState(false)
 
   const handleLogout = () => {
     logout()
@@ -19,13 +22,22 @@ const DashboardPage: React.FC = () => {
               <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
               <p className="text-gray-600">Welcome back, {user?.name}</p>
             </div>
-            <button
-              onClick={handleLogout}
-              className="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors duration-200"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </button>
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => setShowConnectionStatus(true)}
+                className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
+              >
+                <Wifi className="w-4 h-4 mr-2" />
+                Check Connection
+              </button>
+              <button
+                onClick={handleLogout}
+                className="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors duration-200"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -143,6 +155,10 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
       </main>
+
+      {showConnectionStatus && (
+        <ConnectionStatus onClose={() => setShowConnectionStatus(false)} />
+      )}
     </div>
   )
 }

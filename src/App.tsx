@@ -8,6 +8,7 @@ import DashboardPage from './pages/DashboardPage'
 import CreateTranscriptPage from './pages/CreateTranscriptPage'
 import TranscriptsPage from './pages/TranscriptsPage'
 import StudentsPage from './pages/StudentsPage'
+import StudentTranscriptsPage from './pages/StudentTranscriptsPage'
 
 function App() {
   return (
@@ -45,6 +46,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <StudentsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/student-transcripts/:studentId" 
+            element={
+              <ProtectedRoute>
+                <StudentTranscriptsPage />
               </ProtectedRoute>
             } 
           />

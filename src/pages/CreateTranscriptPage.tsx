@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, Plus, Trash2, Save } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { calculateComprehensiveGPA, type Course as GPACourse } from '../utils/gpaCalculator'
 
 interface Course {
   id: string
@@ -40,6 +41,9 @@ const CreateTranscriptPage: React.FC = () => {
       year: new Date().getFullYear()
     }
   ])
+
+  // Calculate GPA data
+  const gpaData = calculateComprehensiveGPA(courses as GPACourse[])
 
   const addNewCourse = () => {
     const newCourse: Course = {
@@ -359,12 +363,13 @@ const CreateTranscriptPage: React.FC = () => {
                         <th className="text-center py-2 px-1 font-bold text-gray-900">LEVEL</th>
                         <th className="text-center py-2 px-1 font-bold text-gray-900">GRADE</th>
                         <th className="text-center py-2 px-1 font-bold text-gray-900">CREDITS</th>
+                        <th className="text-center py-2 px-1 font-bold text-gray-900">POINTS</th>
                         <th className="text-center py-2 px-1 font-bold text-gray-900">TERM</th>
                         <th className="text-center py-2 px-1 font-bold text-gray-900">YEAR</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {courses.map((course, index) => (
+                      {gpaData.coursesWithPoints.map((course, index) => (
                         <tr key={course.id} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
                           <td className="py-2 px-1 text-gray-800 border-b border-gray-200">
                             {course.course_name || '[Course Name]'}
@@ -381,6 +386,9 @@ const CreateTranscriptPage: React.FC = () => {
                           <td className="py-2 px-1 text-center text-gray-800 border-b border-gray-200">
                             {course.credits.toFixed(1)}
                           </td>
+                          <td className="py-2 px-1 text-center text-gray-800 border-b border-gray-200 font-medium">
+                            {course.weightedPoints.toFixed(2)}
+                          </td>
                           <td className="py-2 px-1 text-center text-gray-800 border-b border-gray-200">
                             {course.semester || '[Term]'}
                           </td>
@@ -391,6 +399,65 @@ const CreateTranscriptPage: React.FC = () => {
                       ))}
                     </tbody>
                   </table>
+                </div>
+
+                {/* Semester GPA Breakdown */}
+                {gpaData.semesterGPAs.length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">SEMESTER GPA BREAKDOWN</h3>
+                    <table className="w-full text-xs border-collapse">
+                      <thead>
+                        <tr className="border-t-2 border-b-2 border-gray-900">
+                          <th className="text-left py-2 px-1 font-bold text-gray-900">SEMESTER</th>
+                          <th className="text-center py-2 px-1 font-bold text-gray-900">YEAR</th>
+                          <th className="text-center py-2 px-1 font-bold text-gray-900">CREDITS</th>
+                          <th className="text-center py-2 px-1 font-bold text-gray-900">WEIGHTED GPA</th>
+                          <th className="text-center py-2 px-1 font-bold text-gray-900">UNWEIGHTED GPA</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {gpaData.semesterGPAs.map((semester, index) => (
+                          <tr key={`${semester.semester}-${semester.year}`} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                            <td className="py-2 px-1 text-gray-800 border-b border-gray-200 font-medium">
+                              {semester.semester}
+                            </td>
+                            <td className="py-2 px-1 text-center text-gray-800 border-b border-gray-200">
+                              {semester.year}
+                            </td>
+                            <td className="py-2 px-1 text-center text-gray-800 border-b border-gray-200">
+                              {semester.totalCredits.toFixed(1)}
+                            </td>
+                            <td className="py-2 px-1 text-center text-gray-800 border-b border-gray-200 font-semibold">
+                              {semester.weightedGPA.toFixed(3)}
+                            </td>
+                            <td className="py-2 px-1 text-center text-gray-800 border-b border-gray-200 font-semibold">
+                              {semester.unweightedGPA.toFixed(3)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {/* Cumulative GPA Summary */}
+                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3 text-center">CUMULATIVE GPA SUMMARY</h3>
+                  <div className="grid grid-cols-2 gap-4 text-center">
+                    <div className="bg-white p-3 rounded-lg border">
+                      <p className="text-sm font-medium text-gray-600 mb-1">Cumulative Weighted GPA</p>
+                      <p className="text-2xl font-bold text-blue-600">{gpaData.cumulativeWeightedGPA.toFixed(3)}</p>
+                    </div>
+                    <div className="bg-white p-3 rounded-lg border">
+                      <p className="text-sm font-medium text-gray-600 mb-1">Cumulative Unweighted GPA</p>
+                      <p className="text-2xl font-bold text-green-600">{gpaData.cumulativeUnweightedGPA.toFixed(3)}</p>
+                    </div>
+                  </div>
+                  <div className="mt-3 text-center">
+                    <p className="text-sm text-gray-600">
+                      Total Credits: <span className="font-semibold">{gpaData.totalCredits.toFixed(1)}</span>
+                    </p>
+                  </div>
                 </div>
 
                 {/* Footer */}

@@ -1,6 +1,7 @@
 import React from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import { FileText, Users, Settings, LogOut, BarChart3 } from 'lucide-react'
+import { FileText, Users, LogOut, Plus, Eye, UserCheck } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 const DashboardPage: React.FC = () => {
   const { user, logout } = useAuth()
@@ -62,11 +63,11 @@ const DashboardPage: React.FC = () => {
 
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
             <div className="flex items-center">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <BarChart3 className="w-6 h-6 text-purple-600" />
+              <div className="p-2 bg-indigo-100 rounded-lg">
+                <Plus className="w-6 h-6 text-indigo-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">This Month</p>
+                <p className="text-sm font-medium text-gray-600">New This Month</p>
                 <p className="text-2xl font-bold text-gray-900">0</p>
               </div>
             </div>
@@ -75,7 +76,7 @@ const DashboardPage: React.FC = () => {
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
             <div className="flex items-center">
               <div className="p-2 bg-orange-100 rounded-lg">
-                <Settings className="w-6 h-6 text-orange-600" />
+                <UserCheck className="w-6 h-6 text-orange-600" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">System Status</p>
@@ -85,47 +86,56 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
             <div className="space-y-3">
-              <button className="w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors duration-200">
+              <Link 
+                to="/create-transcript"
+                className="w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-blue-50 hover:border-blue-200 transition-colors duration-200 block"
+              >
                 <div className="flex items-center">
                   <FileText className="w-5 h-5 text-blue-600 mr-3" />
                   <div>
-                    <p className="font-medium text-gray-900">Generate New Transcript</p>
+                    <p className="font-medium text-gray-900">Create Transcript</p>
                     <p className="text-sm text-gray-600">Create a new student transcript</p>
                   </div>
                 </div>
-              </button>
+              </Link>
               
-              <button className="w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors duration-200">
+              <Link 
+                to="/transcripts"
+                className="w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-green-50 hover:border-green-200 transition-colors duration-200 block"
+              >
                 <div className="flex items-center">
-                  <Users className="w-5 h-5 text-green-600 mr-3" />
+                  <Eye className="w-5 h-5 text-green-600 mr-3" />
                   <div>
-                    <p className="font-medium text-gray-900">Manage Students</p>
-                    <p className="text-sm text-gray-600">Add or edit student records</p>
+                    <p className="font-medium text-gray-900">View Saved Transcripts</p>
+                    <p className="text-sm text-gray-600">Browse and manage existing transcripts</p>
                   </div>
                 </div>
-              </button>
+              </Link>
               
-              <button className="w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors duration-200">
+              <Link 
+                to="/students"
+                className="w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-purple-50 hover:border-purple-200 transition-colors duration-200 block"
+              >
                 <div className="flex items-center">
-                  <Settings className="w-5 h-5 text-purple-600 mr-3" />
+                  <Users className="w-5 h-5 text-purple-600 mr-3" />
                   <div>
-                    <p className="font-medium text-gray-900">System Settings</p>
-                    <p className="text-sm text-gray-600">Configure application settings</p>
+                    <p className="font-medium text-gray-900">View Students</p>
+                    <p className="text-sm text-gray-600">Manage student records and information</p>
                   </div>
                 </div>
-              </button>
+              </Link>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 lg:col-span-2">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
             <div className="text-center py-8">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <BarChart3 className="w-8 h-8 text-gray-400" />
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FileText className="w-8 h-8 text-blue-400" />
               </div>
               <p className="text-gray-600">No recent activity</p>
               <p className="text-sm text-gray-500 mt-1">Activity will appear here once you start using the system</p>

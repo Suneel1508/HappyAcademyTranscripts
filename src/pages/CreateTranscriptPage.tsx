@@ -313,33 +313,37 @@ const CreateTranscriptPage: React.FC = () => {
               
               <div className="p-8 bg-white" style={{ fontFamily: 'Times, serif' }}>
                 {/* Transcript Header */}
-                <div className="text-center mb-8">
-                  <h1 className="text-2xl font-bold text-gray-900 mb-2">OFFICIAL TRANSCRIPT</h1>
-                  <div className="w-24 h-0.5 bg-gray-900 mx-auto mb-4"></div>
-                  <p className="text-sm text-gray-700">Happy Academy</p>
-                  <p className="text-sm text-gray-700">123 Education Street, Learning City, LC 12345</p>
-                  <p className="text-sm text-gray-700">Phone: (555) 123-4567</p>
+                <div className="text-center mb-6">
+                  <h1 className="text-xl font-bold text-black mb-1" style={{ fontSize: '18px', letterSpacing: '2px' }}>
+                    OFFICIAL TRANSCRIPT
+                  </h1>
+                  <div className="w-16 h-px bg-black mx-auto mb-3"></div>
+                  <div className="text-xs text-black leading-tight">
+                    <p className="font-semibold">Happy Academy</p>
+                    <p>123 Education Street, Learning City, LC 12345</p>
+                    <p>Phone: (555) 123-4567</p>
+                  </div>
                 </div>
 
                 {/* Student Information */}
-                <div className="mb-6">
-                  <table className="w-full text-sm">
+                <div className="mb-4">
+                  <table className="w-full text-xs border-collapse">
                     <tbody>
                       <tr>
-                        <td className="py-1 pr-4 font-semibold text-gray-900 w-32">Student Name:</td>
-                        <td className="py-1 text-gray-800">
+                        <td className="py-0.5 pr-4 font-bold text-black w-28 text-xs">Student Name:</td>
+                        <td className="py-0.5 text-black text-xs">
                           {studentInfo.last_name || '[Last Name]'}, {studentInfo.first_name || '[First Name]'}
                         </td>
                       </tr>
                       <tr>
-                        <td className="py-1 pr-4 font-semibold text-gray-900">Student ID:</td>
-                        <td className="py-1 text-gray-800">
+                        <td className="py-0.5 pr-4 font-bold text-black text-xs">Student ID:</td>
+                        <td className="py-0.5 text-black text-xs">
                           {studentInfo.student_id_number || '[Student ID]'}
                         </td>
                       </tr>
                       <tr>
-                        <td className="py-1 pr-4 font-semibold text-gray-900">Date Issued:</td>
-                        <td className="py-1 text-gray-800">
+                        <td className="py-0.5 pr-4 font-bold text-black text-xs">Date Issued:</td>
+                        <td className="py-0.5 text-black text-xs">
                           {new Date().toLocaleDateString('en-US', { 
                             year: 'numeric', 
                             month: 'long', 
@@ -352,47 +356,51 @@ const CreateTranscriptPage: React.FC = () => {
                 </div>
 
                 {/* Course Table */}
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">ACADEMIC RECORD</h3>
+                <div className="mb-4">
+                  <h3 className="text-sm font-bold text-black mb-2 text-center" style={{ letterSpacing: '1px' }}>
+                    ACADEMIC RECORD
+                  </h3>
                   
-                  <table className="w-full text-xs border-collapse">
+                  <table className="w-full text-xs border-collapse border border-black">
                     <thead>
-                      <tr className="border-t-2 border-b-2 border-gray-900">
-                        <th className="text-left py-2 px-1 font-bold text-gray-900">COURSE</th>
-                        <th className="text-left py-2 px-1 font-bold text-gray-900">SCHOOL</th>
-                        <th className="text-center py-2 px-1 font-bold text-gray-900">LEVEL</th>
-                        <th className="text-center py-2 px-1 font-bold text-gray-900">GRADE</th>
-                        <th className="text-center py-2 px-1 font-bold text-gray-900">CREDITS</th>
-                        <th className="text-center py-2 px-1 font-bold text-gray-900">POINTS</th>
-                        <th className="text-center py-2 px-1 font-bold text-gray-900">TERM</th>
-                        <th className="text-center py-2 px-1 font-bold text-gray-900">YEAR</th>
+                      <tr className="border-b border-black">
+                        <th className="text-left py-1 px-1 font-bold text-black border-r border-black" style={{ width: '25%' }}>COURSE</th>
+                        <th className="text-left py-1 px-1 font-bold text-black border-r border-black" style={{ width: '20%' }}>SCHOOL</th>
+                        <th className="text-center py-1 px-1 font-bold text-black border-r border-black" style={{ width: '8%' }}>LEVEL</th>
+                        <th className="text-center py-1 px-1 font-bold text-black border-r border-black" style={{ width: '8%' }}>GRADE</th>
+                        <th className="text-center py-1 px-1 font-bold text-black border-r border-black" style={{ width: '8%' }}>CREDITS</th>
+                        <th className="text-center py-1 px-1 font-bold text-black border-r border-black" style={{ width: '8%' }}>POINTS</th>
+                        <th className="text-center py-1 px-1 font-bold text-black border-r border-black" style={{ width: '12%' }}>TERM</th>
+                        <th className="text-center py-1 px-1 font-bold text-black" style={{ width: '11%' }}>YEAR</th>
                       </tr>
                     </thead>
                     <tbody>
                       {gpaData.coursesWithPoints.map((course, index) => (
-                        <tr key={course.id} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                          <td className="py-2 px-1 text-gray-800 border-b border-gray-200">
+                        <tr key={course.id} className="border-b border-black">
+                          <td className="py-1 px-1 text-black border-r border-black text-xs">
                             {course.course_name || '[Course Name]'}
                           </td>
-                          <td className="py-2 px-1 text-gray-800 border-b border-gray-200">
+                          <td className="py-1 px-1 text-black border-r border-black text-xs">
                             {course.school_name || '[School]'}
                           </td>
-                          <td className="py-2 px-1 text-center text-gray-800 border-b border-gray-200">
-                            {course.course_level}
+                          <td className="py-1 px-1 text-center text-black border-r border-black text-xs">
+                            {course.course_level === 'Regular' ? 'REG' : 
+                             course.course_level === 'Honors' ? 'HON' :
+                             course.course_level === 'AP' ? 'AP' : 'COL'}
                           </td>
-                          <td className="py-2 px-1 text-center text-gray-800 border-b border-gray-200 font-semibold">
+                          <td className="py-1 px-1 text-center text-black border-r border-black text-xs font-bold">
                             {course.grade}
                           </td>
-                          <td className="py-2 px-1 text-center text-gray-800 border-b border-gray-200">
+                          <td className="py-1 px-1 text-center text-black border-r border-black text-xs">
                             {course.credits.toFixed(1)}
                           </td>
-                          <td className="py-2 px-1 text-center text-gray-800 border-b border-gray-200 font-medium">
+                          <td className="py-1 px-1 text-center text-black border-r border-black text-xs">
                             {course.weightedPoints.toFixed(2)}
                           </td>
-                          <td className="py-2 px-1 text-center text-gray-800 border-b border-gray-200">
+                          <td className="py-1 px-1 text-center text-black border-r border-black text-xs">
                             {course.semester || '[Term]'}
                           </td>
-                          <td className="py-2 px-1 text-center text-gray-800 border-b border-gray-200">
+                          <td className="py-1 px-1 text-center text-black text-xs">
                             {course.year}
                           </td>
                         </tr>
@@ -401,74 +409,55 @@ const CreateTranscriptPage: React.FC = () => {
                   </table>
                 </div>
 
-                {/* Semester GPA Breakdown */}
-                {gpaData.semesterGPAs.length > 0 && (
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">SEMESTER GPA BREAKDOWN</h3>
-                    <table className="w-full text-xs border-collapse">
-                      <thead>
-                        <tr className="border-t-2 border-b-2 border-gray-900">
-                          <th className="text-left py-2 px-1 font-bold text-gray-900">SEMESTER</th>
-                          <th className="text-center py-2 px-1 font-bold text-gray-900">YEAR</th>
-                          <th className="text-center py-2 px-1 font-bold text-gray-900">CREDITS</th>
-                          <th className="text-center py-2 px-1 font-bold text-gray-900">WEIGHTED GPA</th>
-                          <th className="text-center py-2 px-1 font-bold text-gray-900">UNWEIGHTED GPA</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {gpaData.semesterGPAs.map((semester, index) => (
-                          <tr key={`${semester.semester}-${semester.year}`} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                            <td className="py-2 px-1 text-gray-800 border-b border-gray-200 font-medium">
-                              {semester.semester}
-                            </td>
-                            <td className="py-2 px-1 text-center text-gray-800 border-b border-gray-200">
-                              {semester.year}
-                            </td>
-                            <td className="py-2 px-1 text-center text-gray-800 border-b border-gray-200">
-                              {semester.totalCredits.toFixed(1)}
-                            </td>
-                            <td className="py-2 px-1 text-center text-gray-800 border-b border-gray-200 font-semibold">
-                              {semester.weightedGPA.toFixed(3)}
-                            </td>
-                            <td className="py-2 px-1 text-center text-gray-800 border-b border-gray-200 font-semibold">
-                              {semester.unweightedGPA.toFixed(3)}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-
                 {/* Cumulative GPA Summary */}
-                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3 text-center">CUMULATIVE GPA SUMMARY</h3>
-                  <div className="grid grid-cols-2 gap-4 text-center">
-                    <div className="bg-white p-3 rounded-lg border">
-                      <p className="text-sm font-medium text-gray-600 mb-1">Cumulative Weighted GPA</p>
-                      <p className="text-2xl font-bold text-blue-600">{gpaData.cumulativeWeightedGPA.toFixed(3)}</p>
-                    </div>
-                    <div className="bg-white p-3 rounded-lg border">
-                      <p className="text-sm font-medium text-gray-600 mb-1">Cumulative Unweighted GPA</p>
-                      <p className="text-2xl font-bold text-green-600">{gpaData.cumulativeUnweightedGPA.toFixed(3)}</p>
-                    </div>
-                  </div>
-                  <div className="mt-3 text-center">
-                    <p className="text-sm text-gray-600">
-                      Total Credits: <span className="font-semibold">{gpaData.totalCredits.toFixed(1)}</span>
-                    </p>
+                <div className="mb-4">
+                  <table className="w-full text-xs border-collapse border border-black">
+                    <thead>
+                      <tr className="border-b border-black">
+                        <th className="text-center py-1 px-1 font-bold text-black border-r border-black" colSpan={2}>
+                          CUMULATIVE GPA SUMMARY
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b border-black">
+                        <td className="py-1 px-2 text-left text-black border-r border-black font-bold text-xs">
+                          Cumulative Weighted GPA:
+                        </td>
+                        <td className="py-1 px-2 text-center text-black font-bold text-xs">
+                          {gpaData.cumulativeWeightedGPA.toFixed(3)}
+                        </td>
+                      </tr>
+                      <tr className="border-b border-black">
+                        <td className="py-1 px-2 text-left text-black border-r border-black font-bold text-xs">
+                          Cumulative Unweighted GPA:
+                        </td>
+                        <td className="py-1 px-2 text-center text-black font-bold text-xs">
+                          {gpaData.cumulativeUnweightedGPA.toFixed(3)}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-1 px-2 text-left text-black border-r border-black font-bold text-xs">
+                          Total Credits:
+                        </td>
+                        <td className="py-1 px-2 text-center text-black font-bold text-xs">
+                          {gpaData.totalCredits.toFixed(1)}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                   </div>
                 </div>
 
                 {/* Footer */}
-                <div className="mt-8 pt-4 border-t border-gray-300">
-                  <div className="flex justify-between items-center text-xs text-gray-600">
+                <div className="mt-6 pt-3 border-t border-black">
+                  <div className="flex justify-between items-center text-xs text-black">
                     <div>
                       <p>Transcript generated on {new Date().toLocaleDateString()}</p>
                       <p>Generated by: {user?.name}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold">Happy Academy</p>
+                      <p className="font-bold">Happy Academy</p>
                       <p>Registrar's Office</p>
                     </div>
                   </div>

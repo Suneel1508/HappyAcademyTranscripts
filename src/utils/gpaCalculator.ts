@@ -147,6 +147,8 @@ export function calculateWeightedGPA(courses: Course[]): number {
   // Filter out courses with grades that should be excluded from GPA calculation
   const gradedCourses = courses.filter(course => course.grade !== 'P' && course.grade !== 'IP')
   
+  if (gradedCourses.length === 0) return 0
+  
   let totalWeightedPoints = 0
   let totalCredits = 0
 
@@ -170,6 +172,8 @@ export function calculateWeightedGPA(courses: Course[]): number {
 export function calculateUnweightedGPA(courses: Course[]): number {
   // Filter out courses with grades that should be excluded from GPA calculation
   const gradedCourses = courses.filter(course => course.grade !== 'P' && course.grade !== 'IP')
+  
+  if (gradedCourses.length === 0) return 0
   
   let totalUnweightedPoints = 0
   let totalCredits = 0
@@ -264,11 +268,15 @@ export function calculateComprehensiveGPA(courses: Course[]): GPACalculationResu
   const cumulativeWeightedGPA = totalCredits > 0 ? Math.round((totalWeightedPoints / totalCredits) * 1000) / 1000 : 0
   const cumulativeUnweightedGPA = totalCredits > 0 ? Math.round((totalUnweightedPoints / totalCredits) * 1000) / 1000 : 0
 
+  // Handle edge case where no valid courses exist
+  const displayWeightedGPA = gradedCoursesWithPoints.length === 0 ? 0 : cumulativeWeightedGPA
+  const displayUnweightedGPA = gradedCoursesWithPoints.length === 0 ? 0 : cumulativeUnweightedGPA
+
   return {
     coursesWithPoints,
     semesterGPAs,
-    cumulativeWeightedGPA,
-    cumulativeUnweightedGPA,
+    cumulativeWeightedGPA: displayWeightedGPA,
+    cumulativeUnweightedGPA: displayUnweightedGPA,
     totalCredits,
     totalWeightedPoints,
     totalUnweightedPoints

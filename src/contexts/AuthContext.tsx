@@ -47,16 +47,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-      const response = await fetch(`${supabaseUrl}/functions/v1/admin-login`, {
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+      
+      if (!supabaseUrl || !supabaseAnonKey) {
+        console.error('Missing Supabase environment variables')
+        return false
+      }
+      
+      const functionUrl = `${supabaseUrl}/functions/v1/admin-login`
+      console.log('Calling function at:', functionUrl)
+      
+      const response = await fetch(functionUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'Authorization': `Bearer ${supabaseAnonKey}`,
         },
         body: JSON.stringify({ email, password }),
       })
 
+      console.log('Response status:', response.status)
+      
       const data = await response.json()
+      console.log('Response data:', data)
 
       if (response.ok && data.success) {
         const userData = { 

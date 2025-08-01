@@ -1,13 +1,14 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
 interface User {
-  user_id: number
-  username: string
+  id: string
+  email: string
+  name: string
 }
 
 interface AuthContextType {
   user: User | null
-  login: (username: string, password: string) => Promise<boolean>
+  login: (email: string, password: string) => Promise<boolean>
   logout: () => void
   isLoading: boolean
 }
@@ -44,6 +45,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [])
 
   const login = async (username: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
       const response = await fetch(`${supabaseUrl}/functions/v1/admin-login`, {
@@ -52,13 +54,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email, password }),
       })
 
       const data = await response.json()
 
       if (response.ok && data.success) {
-        const userData = { user_id: data.user.user_id, username: data.user.username }
+        const userData = { 
+          id: data.user.id, 
+          email: data.user.email, 
+          name: data.user.name 
+        }
         setUser(userData)
         localStorage.setItem('admin_user', JSON.stringify(userData))
         return true

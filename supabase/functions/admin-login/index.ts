@@ -8,7 +8,7 @@ const corsHeaders = {
 }
 
 interface LoginRequest {
-  username: string
+  email: string
   password: string
 }
 
@@ -34,12 +34,12 @@ Deno.serve(async (req: Request) => {
     }
 
     // Parse request body
-    const { username, password }: LoginRequest = await req.json()
+    const { email, password }: LoginRequest = await req.json()
 
     // Validate input
-    if (!username || !password) {
+    if (!email || !password) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Username and password are required' }),
+        JSON.stringify({ success: false, error: 'Email and password are required' }),
         {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -54,15 +54,15 @@ Deno.serve(async (req: Request) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // Query user from database
-    const { data: user, error } = await supabase
-      .from('users')
-      .select('user_id, username, hashed_password')
-      .eq('username', username)
+    const { data: adminUser, error } = await supabase
+      .from('admin_users')
+      .select('id, email, password_hash, name')
+      .eq('email', email)
       .single()
 
-    if (error || !user) {
+    if (error || !adminUser) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Invalid username or password' }),
+        JSON.stringify({ success: false, error: 'Invalid email or password' }),
         {
           status: 401,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -71,11 +71,11 @@ Deno.serve(async (req: Request) => {
     }
 
     // Verify password using bcrypt
-    const isValidPassword = await compare(password, user.hashed_password)
+    const isValidPassword = await compare(password, adminUser.password_hash)
 
     if (!isValidPassword) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Invalid username or password' }),
+        JSON.stringify({ success: false, error: 'Invalid email or password' }),
         {
           status: 401,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -88,8 +88,9 @@ Deno.serve(async (req: Request) => {
       JSON.stringify({
         success: true,
         user: {
-          user_id: user.user_id,
-          username: user.username,
+          id: adminUser.id,
+          email: adminUser.email,
+          name: adminUser.name,
         },
       }),
       {

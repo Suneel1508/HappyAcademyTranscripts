@@ -16,7 +16,7 @@ const DashboardPage: React.FC = () => {
           <div className="flex justify-between items-center py-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-              <p className="text-gray-600">Welcome back, {user?.username}</p>
+              <p className="text-gray-600">Welcome back, {user?.name}</p>
             </div>
             <button
               onClick={handleLogout}

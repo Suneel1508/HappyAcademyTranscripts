@@ -44,8 +44,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(false)
   }, [])
 
-  const login = async (username: string, password: string): Promise<boolean> => {
-  }
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL

@@ -139,7 +139,7 @@ const ConnectionStatus: React.FC<ConnectionStatusProps> = ({ onClose }) => {
           <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-blue-800 text-sm">
               <strong>To connect Supabase:</strong><br />
-              1. Click the "Connect to Supabase" button in the top right<br />
+              1. Click the "Connect to Supabase\" button in the top right<br />
               2. Follow the setup instructions<br />
               3. Your environment variables will be configured automatically
             </p>

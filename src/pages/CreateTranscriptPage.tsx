@@ -632,53 +632,54 @@ const CreateTranscriptPage: React.FC = () => {
               </div>
               
               <div className="p-8 bg-white" style={{ fontFamily: 'Times, serif' }}>
+              <div className="transcript-preview">
                 {/* Header */}
                 <div className="text-center mb-6">
-                  <div className="border-2 border-black p-3 mb-4">
+                  <div className="transcript-header">
                     <h1 className="text-lg font-bold text-black" style={{ letterSpacing: '2px' }}>
                       LEGEND COLLEGE PREPARATORY TRANSCRIPT
                     </h1>
                   </div>
-                  <div className="text-xs text-black leading-tight mb-6">
+                  <div className="transcript-contact">
                     <p>21050 McClellan Road, Cupertino CA 95014&nbsp;&nbsp;&nbsp;Tel: 4088650366&nbsp;&nbsp;&nbsp;Email: transcript@legendcp.com&nbsp;&nbsp;&nbsp;CEEB Code: 054732</p>
                   </div>
                 </div>
 
-                {/* Student Information - Two Column Layout */}
+                {/* Student Information */}
                 <div className="mb-6">
-                  <div className="grid grid-cols-2 gap-8 text-xs">
+                  <div className="transcript-student-info">
                     {/* Left Column */}
                     <div className="space-y-2">
-                      <div className="flex">
-                        <span className="font-bold w-24">Student Name:</span>
+                      <div className="transcript-student-row">
+                        <span className="transcript-student-label">Student Name:</span>
                         <span>{studentInfo.last_name || '[Last Name]'}, {studentInfo.first_name || '[First Name]'}</span>
                       </div>
-                      <div className="flex">
-                        <span className="font-bold w-24">Address:</span>
+                      <div className="transcript-student-row">
+                        <span className="transcript-student-label">Address:</span>
                         <span>{studentInfo.address || '[Address]'}</span>
                       </div>
-                      <div className="flex">
-                        <span className="font-bold w-24">Date of Birth:</span>
+                      <div className="transcript-student-row">
+                        <span className="transcript-student-label">Date of Birth:</span>
                         <span>{studentInfo.date_of_birth ? new Date(studentInfo.date_of_birth).toLocaleDateString() : '[Date of Birth]'}</span>
                       </div>
-                      <div className="flex">
-                        <span className="font-bold w-24">Guardian:</span>
+                      <div className="transcript-student-row">
+                        <span className="transcript-student-label">Guardian:</span>
                         <span>{studentInfo.guardian_name || '[Guardian Name]'}</span>
                       </div>
                     </div>
                     
                     {/* Right Column */}
                     <div className="space-y-2">
-                      <div className="flex">
-                        <span className="font-bold w-24">Student Number:</span>
+                      <div className="transcript-student-row">
+                        <span className="transcript-student-label">Student Number:</span>
                         <span>{studentInfo.student_number || '[Student Number]'}</span>
                       </div>
-                      <div className="flex">
-                        <span className="font-bold w-24">Gender:</span>
+                      <div className="transcript-student-row">
+                        <span className="transcript-student-label">Gender:</span>
                         <span>{studentInfo.gender || '[Gender]'}</span>
                       </div>
-                      <div className="flex">
-                        <span className="font-bold w-24">SSN:</span>
+                      <div className="transcript-student-row">
+                        <span className="transcript-student-label">SSN:</span>
                         <span>{studentInfo.ssn || '[SSN]'}</span>
                       </div>
                     </div>
@@ -687,42 +688,42 @@ const CreateTranscriptPage: React.FC = () => {
 
                 {/* GPA Summary Table */}
                 <div className="mb-6">
-                  <table className="w-full border-2 border-black text-xs">
+                  <table className="transcript-table">
                     <tbody>
                       <tr>
-                        <td className="border border-black bg-gray-100 font-bold p-2 w-1/2">GPA Summary</td>
-                        <td className="border border-black bg-gray-100 font-bold p-2 w-1/2">Total Credit Completed</td>
+                        <th className="w-1/2">GPA Summary</th>
+                        <th className="w-1/2">Total Credit Completed</th>
                       </tr>
                       <tr>
-                        <td className="border border-black p-2">Cumulative GPA (Weighted): {gpaData.cumulativeWeightedGPA.toFixed(3)}</td>
-                        <td className="border border-black p-2">{gpaData.totalCredits.toFixed(0)} LEGEND COLLEGE PREPARATORY</td>
+                        <td>Cumulative GPA (Weighted): {gpaData.cumulativeWeightedGPA === 0 && gpaData.totalCredits === 0 ? 'N/A' : gpaData.cumulativeWeightedGPA.toFixed(3)}</td>
+                        <td>{gpaData.totalCredits.toFixed(0)} LEGEND COLLEGE PREPARATORY</td>
                       </tr>
                       <tr>
-                        <td className="border border-black bg-gray-100 font-bold p-2">Enrollment Summary</td>
-                        <td className="border border-black bg-gray-100 font-bold p-2">Total Credit Transferred</td>
+                        <th>Enrollment Summary</th>
+                        <th>Total Credit Transferred</th>
                       </tr>
                       <tr>
-                        <td className="border border-black p-2">
-                          <table className="w-full text-xs">
+                        <td>
+                          <table className="w-full text-xs border-0">
                             <thead>
                               <tr>
-                                <th className="text-left font-bold">Start/End Date</th>
-                                <th className="text-left font-bold">Grade</th>
-                                <th className="text-left font-bold">School</th>
+                                <th className="text-left font-bold border-0 p-1">Start/End Date</th>
+                                <th className="text-left font-bold border-0 p-1">Grade</th>
+                                <th className="text-left font-bold border-0 p-1">School</th>
                               </tr>
                             </thead>
                             <tbody>
                               {gpaData.semesterGPAs.map((semester, index) => (
                                 <tr key={index}>
-                                  <td>{semester.year}</td>
-                                  <td>{semester.year - 2006}</td>
-                                  <td>Legend College Preparatory</td>
+                                  <td className="border-0 p-1">{semester.year}</td>
+                                  <td className="border-0 p-1">{semester.year - 2006}</td>
+                                  <td className="border-0 p-1">Legend College Preparatory</td>
                                 </tr>
                               ))}
                             </tbody>
                           </table>
                         </td>
-                        <td className="border border-black p-2">
+                        <td>
                           {/* Transfer credits would go here */}
                           <div className="space-y-1">
                             <div>150 Leigh High School</div>
@@ -802,7 +803,10 @@ const CreateTranscriptPage: React.FC = () => {
                             {/* Semester GPA */}
                             <div className="text-right text-xs text-black mb-2">
                               <span className="font-bold">
-                                Sem. GPA (Weighted): {calculateWeightedGPA(semesterCourses as GPACourse[]).toFixed(3)}
+                                Sem. GPA (Weighted): {(() => {
+                                  const semGPA = calculateWeightedGPA(semesterCourses as GPACourse[]);
+                                  return semGPA === 0 && semesterCourses.every(c => c.grade === 'P' || c.grade === 'IP') ? '0.000' : semGPA.toFixed(3);
+                                })()}
                               </span>
                             </div>
                           </div>
@@ -830,6 +834,7 @@ const CreateTranscriptPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
+              </div>
               </div>
             </div>
           </div>

@@ -634,84 +634,111 @@ const CreateTranscriptPage: React.FC = () => {
               <div className="p-8 bg-white" style={{ fontFamily: 'Times, serif' }}>
                 {/* Header */}
                 <div className="text-center mb-6">
-                  <h1 className="text-lg font-bold text-black mb-2" style={{ letterSpacing: '2px' }}>
-                    LEGEND COLLEGE PREPARATORY TRANSCRIPT
-                  </h1>
-                  <div className="text-xs text-black leading-tight">
-                    <p>123 Education Street, Learning City, LC 12345</p>
-                    <p>Phone: (555) 123-4567 | Email: registrar@legendprep.edu</p>
+                  <div className="border-2 border-black p-3 mb-4">
+                    <h1 className="text-lg font-bold text-black" style={{ letterSpacing: '2px' }}>
+                      LEGEND COLLEGE PREPARATORY TRANSCRIPT
+                    </h1>
+                  </div>
+                  <div className="text-xs text-black leading-tight mb-6">
+                    <p>21050 McClellan Road, Cupertino CA 95014&nbsp;&nbsp;&nbsp;Tel: 4088650366&nbsp;&nbsp;&nbsp;Email: transcript@legendcp.com&nbsp;&nbsp;&nbsp;CEEB Code: 054732</p>
                   </div>
                 </div>
 
-                {/* Student Information */}
+                {/* Student Information - Two Column Layout */}
                 <div className="mb-6">
-                  <h3 className="text-sm font-bold text-black mb-3 text-center" style={{ letterSpacing: '1px' }}>
-                    STUDENT INFORMATION
-                  </h3>
-                  <table className="w-full text-xs border-collapse">
+                  <div className="grid grid-cols-2 gap-8 text-xs">
+                    {/* Left Column */}
+                    <div className="space-y-2">
+                      <div className="flex">
+                        <span className="font-bold w-24">Student Name:</span>
+                        <span>{studentInfo.last_name || '[Last Name]'}, {studentInfo.first_name || '[First Name]'}</span>
+                      </div>
+                      <div className="flex">
+                        <span className="font-bold w-24">Address:</span>
+                        <span>{studentInfo.address || '[Address]'}</span>
+                      </div>
+                      <div className="flex">
+                        <span className="font-bold w-24">Date of Birth:</span>
+                        <span>{studentInfo.date_of_birth ? new Date(studentInfo.date_of_birth).toLocaleDateString() : '[Date of Birth]'}</span>
+                      </div>
+                      <div className="flex">
+                        <span className="font-bold w-24">Guardian:</span>
+                        <span>{studentInfo.guardian_name || '[Guardian Name]'}</span>
+                      </div>
+                    </div>
+                    
+                    {/* Right Column */}
+                    <div className="space-y-2">
+                      <div className="flex">
+                        <span className="font-bold w-24">Student Number:</span>
+                        <span>{studentInfo.student_number || '[Student Number]'}</span>
+                      </div>
+                      <div className="flex">
+                        <span className="font-bold w-24">Gender:</span>
+                        <span>{studentInfo.gender || '[Gender]'}</span>
+                      </div>
+                      <div className="flex">
+                        <span className="font-bold w-24">SSN:</span>
+                        <span>{studentInfo.ssn || '[SSN]'}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* GPA Summary Table */}
+                <div className="mb-6">
+                  <table className="w-full border-2 border-black text-xs">
                     <tbody>
                       <tr>
-                        <td className="py-1 pr-4 font-bold text-black w-32">Student Name:</td>
-                        <td className="py-1 text-black">
-                          {studentInfo.last_name || '[Last Name]'}, {studentInfo.first_name || '[First Name]'}
-                        </td>
+                        <td className="border border-black bg-gray-100 font-bold p-2 w-1/2">GPA Summary</td>
+                        <td className="border border-black bg-gray-100 font-bold p-2 w-1/2">Total Credit Completed</td>
                       </tr>
                       <tr>
-                        <td className="py-1 pr-4 font-bold text-black">Address:</td>
-                        <td className="py-1 text-black">
-                          {studentInfo.address || '[Address]'}
-                        </td>
+                        <td className="border border-black p-2">Cumulative GPA (Weighted): {gpaData.cumulativeWeightedGPA.toFixed(3)}</td>
+                        <td className="border border-black p-2">{gpaData.totalCredits.toFixed(0)} LEGEND COLLEGE PREPARATORY</td>
                       </tr>
                       <tr>
-                        <td className="py-1 pr-4 font-bold text-black">Date of Birth:</td>
-                        <td className="py-1 text-black">
-                          {studentInfo.date_of_birth ? new Date(studentInfo.date_of_birth).toLocaleDateString() : '[Date of Birth]'}
-                        </td>
+                        <td className="border border-black bg-gray-100 font-bold p-2">Enrollment Summary</td>
+                        <td className="border border-black bg-gray-100 font-bold p-2">Total Credit Transferred</td>
                       </tr>
                       <tr>
-                        <td className="py-1 pr-4 font-bold text-black">Guardian:</td>
-                        <td className="py-1 text-black">
-                          {studentInfo.guardian_name || '[Guardian Name]'}
+                        <td className="border border-black p-2">
+                          <table className="w-full text-xs">
+                            <thead>
+                              <tr>
+                                <th className="text-left font-bold">Start/End Date</th>
+                                <th className="text-left font-bold">Grade</th>
+                                <th className="text-left font-bold">School</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {gpaData.semesterGPAs.map((semester, index) => (
+                                <tr key={index}>
+                                  <td>{semester.year}</td>
+                                  <td>{semester.year - 2006}</td>
+                                  <td>Legend College Preparatory</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
                         </td>
-                      </tr>
-                      <tr>
-                        <td className="py-1 pr-4 font-bold text-black">Student Number:</td>
-                        <td className="py-1 text-black">
-                          {studentInfo.student_number || '[Student Number]'}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="py-1 pr-4 font-bold text-black">Gender:</td>
-                        <td className="py-1 text-black">
-                          {studentInfo.gender || '[Gender]'}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="py-1 pr-4 font-bold text-black">SSN:</td>
-                        <td className="py-1 text-black">
-                          {studentInfo.ssn || '[SSN]'}
+                        <td className="border border-black p-2">
+                          {/* Transfer credits would go here */}
+                          <div className="space-y-1">
+                            <div>150 Leigh High School</div>
+                            <div>50 Foothill College</div>
+                            <div>10 De Anza College</div>
+                          </div>
                         </td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
 
-                {/* GPA Summary */}
-                <div className="mb-6">
-                  <h3 className="text-sm font-bold text-black mb-3 text-center" style={{ letterSpacing: '1px' }}>
-                    GPA SUMMARY
-                  </h3>
-                  <div className="text-center">
-                    <p className="text-xs text-black">
-                      <span className="font-bold">Cumulative GPA (Weighted):</span> {gpaData.cumulativeWeightedGPA.toFixed(3)}
-                    </p>
-                  </div>
-                </div>
-
                 {/* Course Listing by School and Semester */}
                 <div className="mb-6">
                   <h3 className="text-sm font-bold text-black mb-3 text-center" style={{ letterSpacing: '1px' }}>
-                    ACADEMIC RECORD
+                    LEGEND COLLEGE PREPARATORY TRANSCRIPT
                   </h3>
                   
                   {Object.keys(groupedCourses).length === 0 ? (

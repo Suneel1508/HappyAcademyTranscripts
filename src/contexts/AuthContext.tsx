@@ -49,8 +49,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
       const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
       
-      if (!supabaseUrl || !supabaseAnonKey) {
-        console.error('Missing Supabase environment variables')
+      if (!supabaseUrl || !supabaseAnonKey || 
+          supabaseUrl.includes('your-project-id') || 
+          supabaseAnonKey.includes('your-anon-key')) {
+        console.error('Supabase environment variables are not properly configured')
+        console.error('Please update your .env file with actual Supabase credentials')
+        console.error('Current VITE_SUPABASE_URL:', supabaseUrl)
+        console.error('Current VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? 'Set but may be placeholder' : 'Not set')
         return false
       }
       

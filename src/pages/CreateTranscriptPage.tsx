@@ -446,7 +446,6 @@ const CreateTranscriptPage: React.FC = () => {
                       </tr>
                     </tbody>
                   </table>
-                  </div>
                 </div>
 
                 {/* Footer */}

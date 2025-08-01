@@ -1,7 +1,7 @@
 // GPA Calculation Utilities
 
 export type CourseLevel = 'Regular' | 'Honors' | 'AP' | 'College Level'
-export type Grade = 'A+' | 'A' | 'A-' | 'B+' | 'B' | 'B-' | 'C+' | 'C' | 'C-' | 'D+' | 'D' | 'D-' | 'P'
+export type Grade = 'A+' | 'A' | 'A-' | 'B+' | 'B' | 'B-' | 'C+' | 'C' | 'C-' | 'D+' | 'D' | 'D-' | 'P' | 'IP'
 
 // Grade point lookup system for different course levels
 const GRADE_POINT_SCALES: Record<CourseLevel, Record<Grade, number>> = {
@@ -18,7 +18,8 @@ const GRADE_POINT_SCALES: Record<CourseLevel, Record<Grade, number>> = {
     'D+': 1.33,
     'D': 1.00,
     'D-': 0.67,
-    'P': 0.00
+    'P': 0.00,
+    'IP': 0.00
   },
   'Honors': {
     'A+': 4.67,
@@ -33,7 +34,8 @@ const GRADE_POINT_SCALES: Record<CourseLevel, Record<Grade, number>> = {
     'D+': 1.67,
     'D': 1.33,
     'D-': 1.00,
-    'P': 0.00
+    'P': 0.00,
+    'IP': 0.00
   },
   'AP': {
     'A+': 5.33,
@@ -48,7 +50,8 @@ const GRADE_POINT_SCALES: Record<CourseLevel, Record<Grade, number>> = {
     'D+': 2.33,
     'D': 2.00,
     'D-': 1.67,
-    'P': 0.00
+    'P': 0.00,
+    'IP': 0.00
   },
   'College Level': {
     'A+': 5.33,
@@ -63,7 +66,8 @@ const GRADE_POINT_SCALES: Record<CourseLevel, Record<Grade, number>> = {
     'D+': 2.33,
     'D': 2.00,
     'D-': 1.67,
-    'P': 0.00
+    'P': 0.00,
+    'IP': 0.00
   }
 }
 
@@ -81,7 +85,8 @@ const UNWEIGHTED_GRADE_POINTS: Record<Grade, number> = {
   'D+': 1.33,
   'D': 1.00,
   'D-': 0.67,
-  'P': 0.00
+  'P': 0.00,
+  'IP': 0.00
 }
 
 export interface Course {
@@ -139,10 +144,13 @@ export function lookupUnweightedGradePoints(grade: Grade): number {
  * Calculate weighted GPA for a list of courses
  */
 export function calculateWeightedGPA(courses: Course[]): number {
+  // Filter out courses with grades that should be excluded from GPA calculation
+  const gradedCourses = courses.filter(course => course.grade !== 'P' && course.grade !== 'IP')
+  
   let totalWeightedPoints = 0
   let totalCredits = 0
 
-  for (const course of courses) {
+  for (const course of gradedCourses) {
     const gradePoints = lookupGradePoints(course.grade, course.course_level)
     const weightedPoints = gradePoints * course.credits
     
@@ -160,10 +168,13 @@ export function calculateWeightedGPA(courses: Course[]): number {
  * Calculate unweighted GPA for a list of courses (4.0 scale)
  */
 export function calculateUnweightedGPA(courses: Course[]): number {
+  // Filter out courses with grades that should be excluded from GPA calculation
+  const gradedCourses = courses.filter(course => course.grade !== 'P' && course.grade !== 'IP')
+  
   let totalUnweightedPoints = 0
   let totalCredits = 0
 
-  for (const course of courses) {
+  for (const course of gradedCourses) {
     const gradePoints = lookupUnweightedGradePoints(course.grade)
     const unweightedPoints = gradePoints * course.credits
     
@@ -212,9 +223,12 @@ export function calculateComprehensiveGPA(courses: Course[]): GPACalculationResu
   const semesterGPAs: SemesterGPA[] = Array.from(semesterMap.entries()).map(([key, semesterCourses]) => {
     const [semester, year] = key.split('-')
     
-    const totalWeightedPoints = semesterCourses.reduce((sum, course) => sum + course.weightedPoints, 0)
-    const totalUnweightedPoints = semesterCourses.reduce((sum, course) => sum + course.unweightedPoints, 0)
-    const totalCredits = semesterCourses.reduce((sum, course) => sum + course.credits, 0)
+    // Filter out courses with grades that should be excluded from GPA calculation
+    const gradedCourses = semesterCourses.filter(course => course.grade !== 'P' && course.grade !== 'IP')
+    
+    const totalWeightedPoints = gradedCourses.reduce((sum, course) => sum + course.weightedPoints, 0)
+    const totalUnweightedPoints = gradedCourses.reduce((sum, course) => sum + course.unweightedPoints, 0)
+    const totalCredits = gradedCourses.reduce((sum, course) => sum + course.credits, 0)
     
     const weightedGPA = totalCredits > 0 ? Math.round((totalWeightedPoints / totalCredits) * 1000) / 1000 : 0
     const unweightedGPA = totalCredits > 0 ? Math.round((totalUnweightedPoints / totalCredits) * 1000) / 1000 : 0
@@ -240,9 +254,12 @@ export function calculateComprehensiveGPA(courses: Course[]): GPACalculationResu
   })
 
   // Calculate cumulative GPAs
-  const totalWeightedPoints = coursesWithPoints.reduce((sum, course) => sum + course.weightedPoints, 0)
-  const totalUnweightedPoints = coursesWithPoints.reduce((sum, course) => sum + course.unweightedPoints, 0)
-  const totalCredits = coursesWithPoints.reduce((sum, course) => sum + course.credits, 0)
+  // Filter out courses with grades that should be excluded from GPA calculation
+  const gradedCoursesWithPoints = coursesWithPoints.filter(course => course.grade !== 'P' && course.grade !== 'IP')
+  
+  const totalWeightedPoints = gradedCoursesWithPoints.reduce((sum, course) => sum + course.weightedPoints, 0)
+  const totalUnweightedPoints = gradedCoursesWithPoints.reduce((sum, course) => sum + course.unweightedPoints, 0)
+  const totalCredits = gradedCoursesWithPoints.reduce((sum, course) => sum + course.credits, 0)
   
   const cumulativeWeightedGPA = totalCredits > 0 ? Math.round((totalWeightedPoints / totalCredits) * 1000) / 1000 : 0
   const cumulativeUnweightedGPA = totalCredits > 0 ? Math.round((totalUnweightedPoints / totalCredits) * 1000) / 1000 : 0

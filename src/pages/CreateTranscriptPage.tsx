@@ -9,7 +9,7 @@ interface Course {
   course_name: string
   school_name: string
   course_level: 'Regular' | 'Honors' | 'AP' | 'College Level'
-  grade: 'A+' | 'A' | 'A-' | 'B+' | 'B' | 'B-' | 'C+' | 'C' | 'C-' | 'D+' | 'D' | 'D-' | 'P'
+  grade: 'A+' | 'A' | 'A-' | 'B+' | 'B' | 'B-' | 'C+' | 'C' | 'C-' | 'D+' | 'D' | 'D-' | 'P' | 'IP'
   credits: number
   semester: string
   year: number
@@ -29,6 +29,9 @@ interface StudentInfo {
 
 const CreateTranscriptPage: React.FC = () => {
   const { user } = useAuth()
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  
   const [studentInfo, setStudentInfo] = useState<StudentInfo>({
     first_name: '',
     last_name: '',
@@ -115,7 +118,67 @@ const CreateTranscriptPage: React.FC = () => {
   ]
 
   const courseLevels: Course['course_level'][] = ['Regular', 'Honors', 'AP', 'College Level']
-  const grades: Course['grade'][] = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'P']
+  const grades: Course['grade'][] = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'P', 'IP']
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {}
+
+    // Validate student information
+    if (!studentInfo.first_name.trim()) {
+      newErrors.first_name = 'First name is required'
+    }
+    if (!studentInfo.last_name.trim()) {
+      newErrors.last_name = 'Last name is required'
+    }
+    if (!studentInfo.address.trim()) {
+      newErrors.address = 'Address is required'
+    }
+    if (!studentInfo.date_of_birth) {
+      newErrors.date_of_birth = 'Date of birth is required'
+    }
+    if (!studentInfo.student_number.trim()) {
+      newErrors.student_number = 'Student number is required'
+    }
+
+    // Validate courses
+    courses.forEach((course, index) => {
+      if (!course.course_name.trim()) {
+        newErrors[`course_${course.id}_name`] = `Course ${index + 1} name is required`
+      }
+      if (!course.school_name.trim()) {
+        newErrors[`course_${course.id}_school`] = `Course ${index + 1} school is required`
+      }
+      if (!course.semester.trim()) {
+        newErrors[`course_${course.id}_semester`] = `Course ${index + 1} semester is required`
+      }
+      if (course.credits <= 0) {
+        newErrors[`course_${course.id}_credits`] = `Course ${index + 1} credits must be greater than 0`
+      }
+    })
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleSaveTranscript = async () => {
+    if (!validateForm()) {
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      // TODO: Implement save functionality
+      console.log('Saving transcript...', { studentInfo, courses })
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      alert('Transcript saved successfully!')
+    } catch (error) {
+      console.error('Error saving transcript:', error)
+      alert('Error saving transcript. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -137,8 +200,10 @@ const CreateTranscriptPage: React.FC = () => {
             </div>
             <div className="flex items-center space-x-4">
               <button className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200">
+                onClick={handleSaveTranscript}
+                disabled={isSubmitting}
                 <Save className="w-4 h-4 mr-2" />
-                Save Transcript
+                {isSubmitting ? 'Saving...' : 'Save Transcript'}
               </button>
             </div>
           </div>
@@ -165,9 +230,14 @@ const CreateTranscriptPage: React.FC = () => {
                       type="text"
                       value={studentInfo.first_name}
                       onChange={(e) => updateStudentInfo('first_name', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                        errors.first_name ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      }`}
                       placeholder="Enter first name"
                     />
+                    {errors.first_name && (
+                      <p className="mt-1 text-sm text-red-600">{errors.first_name}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -177,9 +247,14 @@ const CreateTranscriptPage: React.FC = () => {
                       type="text"
                       value={studentInfo.last_name}
                       onChange={(e) => updateStudentInfo('last_name', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                        errors.last_name ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      }`}
                       placeholder="Enter last name"
                     />
+                    {errors.last_name && (
+                      <p className="mt-1 text-sm text-red-600">{errors.last_name}</p>
+                    )}
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -189,9 +264,14 @@ const CreateTranscriptPage: React.FC = () => {
                       type="text"
                       value={studentInfo.address}
                       onChange={(e) => updateStudentInfo('address', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                        errors.address ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      }`}
                       placeholder="Enter address"
                     />
+                    {errors.address && (
+                      <p className="mt-1 text-sm text-red-600">{errors.address}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -201,8 +281,13 @@ const CreateTranscriptPage: React.FC = () => {
                       type="date"
                       value={studentInfo.date_of_birth}
                       onChange={(e) => updateStudentInfo('date_of_birth', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                        errors.date_of_birth ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      }`}
                     />
+                    {errors.date_of_birth && (
+                      <p className="mt-1 text-sm text-red-600">{errors.date_of_birth}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -224,9 +309,14 @@ const CreateTranscriptPage: React.FC = () => {
                       type="text"
                       value={studentInfo.student_number}
                       onChange={(e) => updateStudentInfo('student_number', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                        errors.student_number ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      }`}
                       placeholder="Enter student number"
                     />
+                    {errors.student_number && (
+                      <p className="mt-1 text-sm text-red-600">{errors.student_number}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -307,9 +397,14 @@ const CreateTranscriptPage: React.FC = () => {
                             type="text"
                             value={course.course_name}
                             onChange={(e) => updateCourse(course.id, 'course_name', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                              errors[`course_${course.id}_name`] ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                            }`}
                             placeholder="Enter course name"
                           />
+                          {errors[`course_${course.id}_name`] && (
+                            <p className="mt-1 text-sm text-red-600">{errors[`course_${course.id}_name`]}</p>
+                          )}
                         </div>
                         
                         <div>
@@ -319,13 +414,18 @@ const CreateTranscriptPage: React.FC = () => {
                           <select
                             value={course.school_name}
                             onChange={(e) => updateCourse(course.id, 'school_name', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                              errors[`course_${course.id}_school`] ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                            }`}
                           >
                             <option value="">Select school</option>
                             {schoolOptions.map(school => (
                               <option key={school} value={school}>{school}</option>
                             ))}
                           </select>
+                          {errors[`course_${course.id}_school`] && (
+                            <p className="mt-1 text-sm text-red-600">{errors[`course_${course.id}_school`]}</p>
+                          )}
                         </div>
                         
                         <div>
@@ -369,8 +469,13 @@ const CreateTranscriptPage: React.FC = () => {
                             step="0.5"
                             value={course.credits}
                             onChange={(e) => updateCourse(course.id, 'credits', parseFloat(e.target.value) || 0)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                              errors[`course_${course.id}_credits`] ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                            }`}
                           />
+                          {errors[`course_${course.id}_credits`] && (
+                            <p className="mt-1 text-sm text-red-600">{errors[`course_${course.id}_credits`]}</p>
+                          )}
                         </div>
                         
                         <div>
@@ -380,12 +485,17 @@ const CreateTranscriptPage: React.FC = () => {
                           <select
                             value={course.semester}
                             onChange={(e) => updateCourse(course.id, 'semester', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                              errors[`course_${course.id}_semester`] ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                            }`}
                           >
                             <option value="">Select semester</option>
                             <option value="1st Semester">1st Semester</option>
                             <option value="2nd Semester">2nd Semester</option>
                           </select>
+                          {errors[`course_${course.id}_semester`] && (
+                            <p className="mt-1 text-sm text-red-600">{errors[`course_${course.id}_semester`]}</p>
+                          )}
                         </div>
                         
                         <div>
@@ -561,14 +671,7 @@ const CreateTranscriptPage: React.FC = () => {
                             {/* Semester GPA */}
                             <div className="text-right text-xs text-black mb-2">
                               <span className="font-bold">
-                                Sem. GPA (Weighted): {
-                                  semesterCourses.length > 0 
-                                    ? (semesterCourses.reduce((sum, c) => {
-                                        const gpaData = calculateComprehensiveGPA([c] as GPACourse[])
-                                        return sum + gpaData.cumulativeWeightedGPA
-                                      }, 0) / semesterCourses.length).toFixed(3)
-                                    : '0.000'
-                                }
+                                Sem. GPA (Weighted): {calculateWeightedGPA(semesterCourses as GPACourse[]).toFixed(3)}
                               </span>
                             </div>
                           </div>

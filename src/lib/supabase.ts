@@ -37,7 +37,7 @@ export type Transcript = {
 }
 
 export type CourseLevel = 'Regular' | 'Honors' | 'AP' | 'College Level'
-export type Grade = 'A+' | 'A' | 'A-' | 'B+' | 'B' | 'B-' | 'C+' | 'C' | 'C-' | 'D+' | 'D' | 'D-' | 'P'
+export type Grade = 'A+' | 'A' | 'A-' | 'B+' | 'B' | 'B-' | 'C+' | 'C' | 'C-' | 'D+' | 'D' | 'D-' | 'P' | 'IP'
 
 export type Course = {
   id: string

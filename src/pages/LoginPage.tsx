@@ -29,7 +29,12 @@ const LoginPage: React.FC = () => {
     const success = await login(email, password)
     
     if (!success) {
-      setError('Invalid email or password')
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+      if (!supabaseUrl || supabaseUrl.includes('your-project-id')) {
+        setError('Please connect to Supabase first. Click the "Connect to Supabase" button in the top right.')
+      } else {
+        setError('Invalid email or password')
+      }
     }
     
     setIsLoading(false)

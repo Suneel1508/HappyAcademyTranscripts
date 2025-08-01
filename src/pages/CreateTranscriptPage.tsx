@@ -304,12 +304,12 @@ const CreateTranscriptPage: React.FC = () => {
             </div>
             <div className="flex items-center space-x-4">
               <button className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200">
-                onClick={handleSaveTranscript}
-                disabled={isSubmitting}
                 <Save className="w-4 h-4 mr-2" />
                 {isSubmitting ? 'Saving...' : 'Save Transcript'}
               </button>
             </div>
+                onClick={handleDownloadPDF}
+                disabled={isDownloading}
           </div>
         </div>
       </header>

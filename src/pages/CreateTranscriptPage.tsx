@@ -738,10 +738,6 @@ const CreateTranscriptPage: React.FC = () => {
 
                 {/* Course Listing by School and Semester */}
                 <div className="mb-6">
-                  <h3 className="text-sm font-bold text-black mb-3 text-center" style={{ letterSpacing: '1px' }}>
-                    LEGEND COLLEGE PREPARATORY TRANSCRIPT
-                  </h3>
-                  
                   {Object.keys(groupedCourses).length === 0 ? (
                     <div className="text-center text-xs text-gray-500 py-4">
                       No courses added yet
@@ -749,68 +745,140 @@ const CreateTranscriptPage: React.FC = () => {
                   ) : (
                     Object.entries(groupedCourses).map(([schoolName, semesters]) => (
                       <div key={schoolName} className="mb-4">
-                        {/* School Header */}
-                        <h4 className="text-xs font-bold text-black mb-2 bg-gray-100 px-2 py-1">
-                          {schoolName}
-                        </h4>
-                        
-                        {Object.entries(semesters).map(([semesterKey, semesterCourses]) => (
-                          <div key={semesterKey} className="mb-3">
-                            {/* Semester Header */}
-                            <h5 className="text-xs font-bold text-black mb-1 pl-2">
-                              {semesterKey}
-                            </h5>
-                            
-                            {/* Course Table */}
-                            <table className="w-full text-xs border-collapse border border-black mb-2">
-                              <thead>
-                                <tr className="border-b border-black">
-                                  <th className="text-left py-1 px-1 font-bold text-black border-r border-black" style={{ width: '15%' }}>Grade Level</th>
-                                  <th className="text-left py-1 px-1 font-bold text-black border-r border-black" style={{ width: '15%' }}>School Year</th>
-                                  <th className="text-left py-1 px-1 font-bold text-black border-r border-black" style={{ width: '35%' }}>Course Title</th>
-                                  <th className="text-center py-1 px-1 font-bold text-black border-r border-black" style={{ width: '10%' }}>H/AP</th>
-                                  <th className="text-center py-1 px-1 font-bold text-black border-r border-black" style={{ width: '10%' }}>Grade</th>
-                                  <th className="text-center py-1 px-1 font-bold text-black" style={{ width: '15%' }}>Credits</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {semesterCourses.map((course) => (
-                                  <tr key={course.id} className="border-b border-black">
-                                    <td className="py-1 px-1 text-black border-r border-black text-xs">
-                                      {course.year ? `Grade ${course.year - 2006}` : '[Grade]'}
-                                    </td>
-                                    <td className="py-1 px-1 text-black border-r border-black text-xs">
-                                      {course.year || '[Year]'}
-                                    </td>
-                                    <td className="py-1 px-1 text-black border-r border-black text-xs">
-                                      {course.course_name || '[Course Name]'}
-                                    </td>
-                                    <td className="py-1 px-1 text-center text-black border-r border-black text-xs">
-                                      {course.course_level === 'Honors' ? 'H' : 
-                                       course.course_level === 'AP' ? 'AP' : ''}
-                                    </td>
-                                    <td className="py-1 px-1 text-center text-black border-r border-black text-xs font-bold">
-                                      {course.grade}
-                                    </td>
-                                    <td className="py-1 px-1 text-center text-black text-xs">
-                                      {course.credits.toFixed(1)}
-                                    </td>
-                                  </tr>
+                        {/* School Header with Border */}
+                        <div className="border-2 border-black mb-4">
+                          <h4 className="text-sm font-bold text-black text-center py-2 bg-gray-100">
+                            {schoolName}
+                          </h4>
+                          
+                          {/* Side-by-side semester layout */}
+                          <div className="grid grid-cols-2 border-t border-black">
+                            {/* 1st Semester Column */}
+                            <div className="border-r border-black">
+                              <div className="bg-gray-100 px-2 py-1 border-b border-black">
+                                <span className="text-xs font-bold">1st Semester:</span>
+                              </div>
+                              
+                              {/* 1st Semester Header Row */}
+                              <div className="grid grid-cols-6 text-xs font-bold border-b border-black bg-white">
+                                <div className="px-1 py-1 border-r border-black">Grade Level</div>
+                                <div className="px-1 py-1 border-r border-black">School Year</div>
+                                <div className="px-1 py-1 border-r border-black">Course Title</div>
+                                <div className="px-1 py-1 border-r border-black">H/AP</div>
+                                <div className="px-1 py-1 border-r border-black">Grade</div>
+                                <div className="px-1 py-1">Credits</div>
+                              </div>
+                              
+                              {/* 1st Semester Courses */}
+                              {Object.entries(semesters)
+                                .filter(([semKey]) => semKey.includes('1st Semester'))
+                                .map(([semesterKey, semesterCourses]) => (
+                                  <div key={semesterKey}>
+                                    {semesterCourses.map((course) => (
+                                      <div key={course.id} className="grid grid-cols-6 text-xs border-b border-gray-300">
+                                        <div className="px-1 py-1 border-r border-black">
+                                          {course.year ? course.year - 2006 : '[Grade]'}
+                                        </div>
+                                        <div className="px-1 py-1 border-r border-black">
+                                          '{course.year ? course.year.toString().slice(-2) : '[YY]'}-{course.year ? (course.year + 1).toString().slice(-2) : '[YY]'}
+                                        </div>
+                                        <div className="px-1 py-1 border-r border-black">
+                                          {course.course_name || '[Course Name]'}
+                                        </div>
+                                        <div className="px-1 py-1 border-r border-black text-center">
+                                          {course.course_level === 'Honors' ? 'H' : 
+                                           course.course_level === 'AP' ? 'AP' : 
+                                           course.course_level === 'College Level' ? 'CL' : ''}
+                                        </div>
+                                        <div className="px-1 py-1 border-r border-black text-center font-bold">
+                                          {course.grade}
+                                        </div>
+                                        <div className="px-1 py-1 text-center">
+                                          {course.credits}
+                                        </div>
+                                      </div>
+                                    ))}
+                                    {/* 1st Semester GPA */}
+                                    <div className="bg-gray-100 px-2 py-1 text-xs font-bold border-b border-black">
+                                      Sem. GPA (Weighted): {(() => {
+                                        const firstSemCourses = semesterCourses.filter(c => c.grade !== 'P' && c.grade !== 'IP');
+                                        if (firstSemCourses.length === 0) return '0.00';
+                                        const totalPoints = firstSemCourses.reduce((sum, c) => {
+                                          const gradePoints = lookupGradePoints(c.grade, c.course_level);
+                                          return sum + (gradePoints * c.credits);
+                                        }, 0);
+                                        const totalCredits = firstSemCourses.reduce((sum, c) => sum + c.credits, 0);
+                                        return totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : '0.00';
+                                      })()}
+                                    </div>
+                                  </div>
                                 ))}
-                              </tbody>
-                            </table>
+                            </div>
                             
-                            {/* Semester GPA */}
-                            <div className="text-right text-xs text-black mb-2">
-                              <span className="font-bold">
-                                Sem. GPA (Weighted): {(() => {
-                                  const semGPA = calculateWeightedGPA(semesterCourses as GPACourse[]);
-                                  return semGPA === 0 && semesterCourses.every(c => c.grade === 'P' || c.grade === 'IP') ? '0.000' : semGPA.toFixed(3);
-                                })()}
-                              </span>
+                            {/* 2nd Semester Column */}
+                            <div>
+                              <div className="bg-gray-100 px-2 py-1 border-b border-black">
+                                <span className="text-xs font-bold">2nd Semester:</span>
+                              </div>
+                              
+                              {/* 2nd Semester Header Row */}
+                              <div className="grid grid-cols-6 text-xs font-bold border-b border-black bg-white">
+                                <div className="px-1 py-1 border-r border-black">Grade Level</div>
+                                <div className="px-1 py-1 border-r border-black">School Year</div>
+                                <div className="px-1 py-1 border-r border-black">Course Title</div>
+                                <div className="px-1 py-1 border-r border-black">H/AP</div>
+                                <div className="px-1 py-1 border-r border-black">Grade</div>
+                                <div className="px-1 py-1">Credits</div>
+                              </div>
+                              
+                              {/* 2nd Semester Courses */}
+                              {Object.entries(semesters)
+                                .filter(([semKey]) => semKey.includes('2nd Semester'))
+                                .map(([semesterKey, semesterCourses]) => (
+                                  <div key={semesterKey}>
+                                    {semesterCourses.map((course) => (
+                                      <div key={course.id} className="grid grid-cols-6 text-xs border-b border-gray-300">
+                                        <div className="px-1 py-1 border-r border-black">
+                                          {course.year ? course.year - 2006 : '[Grade]'}
+                                        </div>
+                                        <div className="px-1 py-1 border-r border-black">
+                                          '{course.year ? course.year.toString().slice(-2) : '[YY]'}-{course.year ? (course.year + 1).toString().slice(-2) : '[YY]'}
+                                        </div>
+                                        <div className="px-1 py-1 border-r border-black">
+                                          {course.course_name || '[Course Name]'}
+                                        </div>
+                                        <div className="px-1 py-1 border-r border-black text-center">
+                                          {course.course_level === 'Honors' ? 'H' : 
+                                           course.course_level === 'AP' ? 'AP' : 
+                                           course.course_level === 'College Level' ? 'CL' : ''}
+                                        </div>
+                                        <div className="px-1 py-1 border-r border-black text-center font-bold">
+                                          {course.grade}
+                                        </div>
+                                        <div className="px-1 py-1 text-center">
+                                          {course.credits}
+                                        </div>
+                                      </div>
+                                    ))}
+                                    {/* 2nd Semester GPA */}
+                                    <div className="bg-gray-100 px-2 py-1 text-xs font-bold border-b border-black">
+                                      Sem. GPA (Weighted): {(() => {
+                                        const secondSemCourses = semesterCourses.filter(c => c.grade !== 'P' && c.grade !== 'IP');
+                                        if (secondSemCourses.length === 0) return '0.00';
+                                        const totalPoints = secondSemCourses.reduce((sum, c) => {
+                                          const gradePoints = lookupGradePoints(c.grade, c.course_level);
+                                          return sum + (gradePoints * c.credits);
+                                        }, 0);
+                                        const totalCredits = secondSemCourses.reduce((sum, c) => sum + c.credits, 0);
+                                        return totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : '0.00';
+                                      })()}
+                                    </div>
+                                  </div>
+                                ))}
                             </div>
                           </div>
-                        ))}
+                        </div>
+                        
                       </div>
                     ))
                   )}

@@ -466,7 +466,6 @@ const CreateTranscriptPage: React.FC = () => {
             </div>
           </div>
         </div>
-        </div>
       </main>
     </div>
   )

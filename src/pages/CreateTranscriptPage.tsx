@@ -18,7 +18,13 @@ interface Course {
 interface StudentInfo {
   first_name: string
   last_name: string
-  student_id_number: string
+  address: string
+  date_of_birth: string
+  guardian_name: string
+  student_number: string
+  gender: 'Male' | 'Female' | 'Other' | ''
+  ssn: string
+  curriculum_track: string
 }
 
 const CreateTranscriptPage: React.FC = () => {
@@ -26,7 +32,13 @@ const CreateTranscriptPage: React.FC = () => {
   const [studentInfo, setStudentInfo] = useState<StudentInfo>({
     first_name: '',
     last_name: '',
-    student_id_number: ''
+    address: '',
+    date_of_birth: '',
+    guardian_name: '',
+    student_number: '',
+    gender: '',
+    ssn: '',
+    curriculum_track: ''
   })
 
   const [courses, setCourses] = useState<Course[]>([
@@ -44,6 +56,23 @@ const CreateTranscriptPage: React.FC = () => {
 
   // Calculate GPA data
   const gpaData = calculateComprehensiveGPA(courses as GPACourse[])
+
+  // Group courses by school and then by semester
+  const groupedCourses = courses.reduce((acc, course) => {
+    if (!course.school_name) return acc
+    
+    if (!acc[course.school_name]) {
+      acc[course.school_name] = {}
+    }
+    
+    const semesterKey = `${course.semester} ${course.year}`
+    if (!acc[course.school_name][semesterKey]) {
+      acc[course.school_name][semesterKey] = []
+    }
+    
+    acc[course.school_name][semesterKey].push(course)
+    return acc
+  }, {} as Record<string, Record<string, Course[]>>)
 
   const addNewCourse = () => {
     const newCourse: Course = {
@@ -76,6 +105,7 @@ const CreateTranscriptPage: React.FC = () => {
   }
 
   const schoolOptions = [
+    'Legend College Preparatory',
     'Happy Academy High School',
     'Central High School',
     'Westfield Academy',
@@ -153,14 +183,88 @@ const CreateTranscriptPage: React.FC = () => {
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Student ID Number
+                      Address
                     </label>
                     <input
                       type="text"
-                      value={studentInfo.student_id_number}
-                      onChange={(e) => updateStudentInfo('student_id_number', e.target.value)}
+                      value={studentInfo.address}
+                      onChange={(e) => updateStudentInfo('address', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Enter student ID"
+                      placeholder="Enter address"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Date of Birth
+                    </label>
+                    <input
+                      type="date"
+                      value={studentInfo.date_of_birth}
+                      onChange={(e) => updateStudentInfo('date_of_birth', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Guardian Name
+                    </label>
+                    <input
+                      type="text"
+                      value={studentInfo.guardian_name}
+                      onChange={(e) => updateStudentInfo('guardian_name', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter guardian name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Student Number
+                    </label>
+                    <input
+                      type="text"
+                      value={studentInfo.student_number}
+                      onChange={(e) => updateStudentInfo('student_number', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter student number"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Gender
+                    </label>
+                    <select
+                      value={studentInfo.gender}
+                      onChange={(e) => updateStudentInfo('gender', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">Select gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      SSN
+                    </label>
+                    <input
+                      type="text"
+                      value={studentInfo.ssn}
+                      onChange={(e) => updateStudentInfo('ssn', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter SSN"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Curriculum Track
+                    </label>
+                    <input
+                      type="text"
+                      value={studentInfo.curriculum_track}
+                      onChange={(e) => updateStudentInfo('curriculum_track', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter curriculum track"
                     />
                   </div>
                 </div>
@@ -273,13 +377,15 @@ const CreateTranscriptPage: React.FC = () => {
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Semester
                           </label>
-                          <input
-                            type="text"
+                          <select
                             value={course.semester}
                             onChange={(e) => updateCourse(course.id, 'semester', e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="e.g., Fall, Spring"
-                          />
+                          >
+                            <option value="">Select semester</option>
+                            <option value="1st Semester">1st Semester</option>
+                            <option value="2nd Semester">2nd Semester</option>
+                          </select>
                         </div>
                         
                         <div>
@@ -312,140 +418,164 @@ const CreateTranscriptPage: React.FC = () => {
               </div>
               
               <div className="p-8 bg-white" style={{ fontFamily: 'Times, serif' }}>
-                {/* Transcript Header */}
+                {/* Header */}
                 <div className="text-center mb-6">
-                  <h1 className="text-xl font-bold text-black mb-1" style={{ fontSize: '18px', letterSpacing: '2px' }}>
-                    OFFICIAL TRANSCRIPT
+                  <h1 className="text-lg font-bold text-black mb-2" style={{ letterSpacing: '2px' }}>
+                    LEGEND COLLEGE PREPARATORY TRANSCRIPT
                   </h1>
-                  <div className="w-16 h-px bg-black mx-auto mb-3"></div>
                   <div className="text-xs text-black leading-tight">
-                    <p className="font-semibold">Happy Academy</p>
                     <p>123 Education Street, Learning City, LC 12345</p>
-                    <p>Phone: (555) 123-4567</p>
+                    <p>Phone: (555) 123-4567 | Email: registrar@legendprep.edu</p>
                   </div>
                 </div>
 
                 {/* Student Information */}
-                <div className="mb-4">
+                <div className="mb-6">
+                  <h3 className="text-sm font-bold text-black mb-3 text-center" style={{ letterSpacing: '1px' }}>
+                    STUDENT INFORMATION
+                  </h3>
                   <table className="w-full text-xs border-collapse">
                     <tbody>
                       <tr>
-                        <td className="py-0.5 pr-4 font-bold text-black w-28 text-xs">Student Name:</td>
-                        <td className="py-0.5 text-black text-xs">
+                        <td className="py-1 pr-4 font-bold text-black w-32">Student Name:</td>
+                        <td className="py-1 text-black">
                           {studentInfo.last_name || '[Last Name]'}, {studentInfo.first_name || '[First Name]'}
                         </td>
                       </tr>
                       <tr>
-                        <td className="py-0.5 pr-4 font-bold text-black text-xs">Student ID:</td>
-                        <td className="py-0.5 text-black text-xs">
-                          {studentInfo.student_id_number || '[Student ID]'}
+                        <td className="py-1 pr-4 font-bold text-black">Address:</td>
+                        <td className="py-1 text-black">
+                          {studentInfo.address || '[Address]'}
                         </td>
                       </tr>
                       <tr>
-                        <td className="py-0.5 pr-4 font-bold text-black text-xs">Date Issued:</td>
-                        <td className="py-0.5 text-black text-xs">
-                          {new Date().toLocaleDateString('en-US', { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric' 
-                          })}
+                        <td className="py-1 pr-4 font-bold text-black">Date of Birth:</td>
+                        <td className="py-1 text-black">
+                          {studentInfo.date_of_birth ? new Date(studentInfo.date_of_birth).toLocaleDateString() : '[Date of Birth]'}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-1 pr-4 font-bold text-black">Guardian:</td>
+                        <td className="py-1 text-black">
+                          {studentInfo.guardian_name || '[Guardian Name]'}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-1 pr-4 font-bold text-black">Student Number:</td>
+                        <td className="py-1 text-black">
+                          {studentInfo.student_number || '[Student Number]'}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-1 pr-4 font-bold text-black">Gender:</td>
+                        <td className="py-1 text-black">
+                          {studentInfo.gender || '[Gender]'}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-1 pr-4 font-bold text-black">SSN:</td>
+                        <td className="py-1 text-black">
+                          {studentInfo.ssn || '[SSN]'}
                         </td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
 
-                {/* Course Table */}
-                <div className="mb-4">
-                  <h3 className="text-sm font-bold text-black mb-2 text-center" style={{ letterSpacing: '1px' }}>
+                {/* GPA Summary */}
+                <div className="mb-6">
+                  <h3 className="text-sm font-bold text-black mb-3 text-center" style={{ letterSpacing: '1px' }}>
+                    GPA SUMMARY
+                  </h3>
+                  <div className="text-center">
+                    <p className="text-xs text-black">
+                      <span className="font-bold">Cumulative GPA (Weighted):</span> {gpaData.cumulativeWeightedGPA.toFixed(3)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Course Listing by School and Semester */}
+                <div className="mb-6">
+                  <h3 className="text-sm font-bold text-black mb-3 text-center" style={{ letterSpacing: '1px' }}>
                     ACADEMIC RECORD
                   </h3>
                   
-                  <table className="w-full text-xs border-collapse border border-black">
-                    <thead>
-                      <tr className="border-b border-black">
-                        <th className="text-left py-1 px-1 font-bold text-black border-r border-black" style={{ width: '25%' }}>COURSE</th>
-                        <th className="text-left py-1 px-1 font-bold text-black border-r border-black" style={{ width: '20%' }}>SCHOOL</th>
-                        <th className="text-center py-1 px-1 font-bold text-black border-r border-black" style={{ width: '8%' }}>LEVEL</th>
-                        <th className="text-center py-1 px-1 font-bold text-black border-r border-black" style={{ width: '8%' }}>GRADE</th>
-                        <th className="text-center py-1 px-1 font-bold text-black border-r border-black" style={{ width: '8%' }}>CREDITS</th>
-                        <th className="text-center py-1 px-1 font-bold text-black border-r border-black" style={{ width: '8%' }}>POINTS</th>
-                        <th className="text-center py-1 px-1 font-bold text-black border-r border-black" style={{ width: '12%' }}>TERM</th>
-                        <th className="text-center py-1 px-1 font-bold text-black" style={{ width: '11%' }}>YEAR</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {gpaData.coursesWithPoints.map((course, index) => (
-                        <tr key={course.id} className="border-b border-black">
-                          <td className="py-1 px-1 text-black border-r border-black text-xs">
-                            {course.course_name || '[Course Name]'}
-                          </td>
-                          <td className="py-1 px-1 text-black border-r border-black text-xs">
-                            {course.school_name || '[School]'}
-                          </td>
-                          <td className="py-1 px-1 text-center text-black border-r border-black text-xs">
-                            {course.course_level === 'Regular' ? 'REG' : 
-                             course.course_level === 'Honors' ? 'HON' :
-                             course.course_level === 'AP' ? 'AP' : 'COL'}
-                          </td>
-                          <td className="py-1 px-1 text-center text-black border-r border-black text-xs font-bold">
-                            {course.grade}
-                          </td>
-                          <td className="py-1 px-1 text-center text-black border-r border-black text-xs">
-                            {course.credits.toFixed(1)}
-                          </td>
-                          <td className="py-1 px-1 text-center text-black border-r border-black text-xs">
-                            {course.weightedPoints.toFixed(2)}
-                          </td>
-                          <td className="py-1 px-1 text-center text-black border-r border-black text-xs">
-                            {course.semester || '[Term]'}
-                          </td>
-                          <td className="py-1 px-1 text-center text-black text-xs">
-                            {course.year}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Cumulative GPA Summary */}
-                <div className="mb-4">
-                  <table className="w-full text-xs border-collapse border border-black">
-                    <thead>
-                      <tr className="border-b border-black">
-                        <th className="text-center py-1 px-1 font-bold text-black border-r border-black" colSpan={2}>
-                          CUMULATIVE GPA SUMMARY
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="border-b border-black">
-                        <td className="py-1 px-2 text-left text-black border-r border-black font-bold text-xs">
-                          Cumulative Weighted GPA:
-                        </td>
-                        <td className="py-1 px-2 text-center text-black font-bold text-xs">
-                          {gpaData.cumulativeWeightedGPA.toFixed(3)}
-                        </td>
-                      </tr>
-                      <tr className="border-b border-black">
-                        <td className="py-1 px-2 text-left text-black border-r border-black font-bold text-xs">
-                          Cumulative Unweighted GPA:
-                        </td>
-                        <td className="py-1 px-2 text-center text-black font-bold text-xs">
-                          {gpaData.cumulativeUnweightedGPA.toFixed(3)}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="py-1 px-2 text-left text-black border-r border-black font-bold text-xs">
-                          Total Credits:
-                        </td>
-                        <td className="py-1 px-2 text-center text-black font-bold text-xs">
-                          {gpaData.totalCredits.toFixed(1)}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                  {Object.keys(groupedCourses).length === 0 ? (
+                    <div className="text-center text-xs text-gray-500 py-4">
+                      No courses added yet
+                    </div>
+                  ) : (
+                    Object.entries(groupedCourses).map(([schoolName, semesters]) => (
+                      <div key={schoolName} className="mb-4">
+                        {/* School Header */}
+                        <h4 className="text-xs font-bold text-black mb-2 bg-gray-100 px-2 py-1">
+                          {schoolName}
+                        </h4>
+                        
+                        {Object.entries(semesters).map(([semesterKey, semesterCourses]) => (
+                          <div key={semesterKey} className="mb-3">
+                            {/* Semester Header */}
+                            <h5 className="text-xs font-bold text-black mb-1 pl-2">
+                              {semesterKey}
+                            </h5>
+                            
+                            {/* Course Table */}
+                            <table className="w-full text-xs border-collapse border border-black mb-2">
+                              <thead>
+                                <tr className="border-b border-black">
+                                  <th className="text-left py-1 px-1 font-bold text-black border-r border-black" style={{ width: '15%' }}>Grade Level</th>
+                                  <th className="text-left py-1 px-1 font-bold text-black border-r border-black" style={{ width: '15%' }}>School Year</th>
+                                  <th className="text-left py-1 px-1 font-bold text-black border-r border-black" style={{ width: '35%' }}>Course Title</th>
+                                  <th className="text-center py-1 px-1 font-bold text-black border-r border-black" style={{ width: '10%' }}>H/AP</th>
+                                  <th className="text-center py-1 px-1 font-bold text-black border-r border-black" style={{ width: '10%' }}>Grade</th>
+                                  <th className="text-center py-1 px-1 font-bold text-black" style={{ width: '15%' }}>Credits</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {semesterCourses.map((course) => (
+                                  <tr key={course.id} className="border-b border-black">
+                                    <td className="py-1 px-1 text-black border-r border-black text-xs">
+                                      {course.year ? `Grade ${course.year - 2006}` : '[Grade]'}
+                                    </td>
+                                    <td className="py-1 px-1 text-black border-r border-black text-xs">
+                                      {course.year || '[Year]'}
+                                    </td>
+                                    <td className="py-1 px-1 text-black border-r border-black text-xs">
+                                      {course.course_name || '[Course Name]'}
+                                    </td>
+                                    <td className="py-1 px-1 text-center text-black border-r border-black text-xs">
+                                      {course.course_level === 'Honors' ? 'H' : 
+                                       course.course_level === 'AP' ? 'AP' : ''}
+                                    </td>
+                                    <td className="py-1 px-1 text-center text-black border-r border-black text-xs font-bold">
+                                      {course.grade}
+                                    </td>
+                                    <td className="py-1 px-1 text-center text-black text-xs">
+                                      {course.credits.toFixed(1)}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                            
+                            {/* Semester GPA */}
+                            <div className="text-right text-xs text-black mb-2">
+                              <span className="font-bold">
+                                Sem. GPA (Weighted): {
+                                  semesterCourses.length > 0 
+                                    ? (semesterCourses.reduce((sum, c) => {
+                                        const gpaData = calculateComprehensiveGPA([c] as GPACourse[])
+                                        return sum + gpaData.cumulativeWeightedGPA
+                                      }, 0) / semesterCourses.length).toFixed(3)
+                                    : '0.000'
+                                }
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ))
+                  )}
                 </div>
 
                 {/* Footer */}
@@ -456,7 +586,7 @@ const CreateTranscriptPage: React.FC = () => {
                       <p>Generated by: {user?.name}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold">Happy Academy</p>
+                      <p className="font-bold">Legend College Preparatory</p>
                       <p>Registrar's Office</p>
                     </div>
                   </div>

@@ -49,16 +49,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
       const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
       
-      if (!supabaseUrl || !supabaseAnonKey || 
-          supabaseUrl.includes('your-project-id') || 
+      // Check if environment variables are properly configured
+      if (!supabaseUrl || !supabaseAnonKey) {
+        console.error('Missing Supabase environment variables')
+        return false
+      }
+      
+      if (supabaseUrl.includes('your-project-id') || 
           supabaseAnonKey.includes('your-anon-key')) {
-        console.warn('Supabase environment variables are not properly configured')
-        console.warn('Please click "Connect to Supabase" button to set up your database connection')
+        console.error('Supabase environment variables contain placeholder values')
         return false
       }
       
       const functionUrl = `${supabaseUrl}/functions/v1/admin-login`
-      console.log('Calling function at:', functionUrl)
       
       const response = await fetch(functionUrl, {
         method: 'POST',
@@ -69,10 +72,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         body: JSON.stringify({ email, password }),
       })
 
-      console.log('Response status:', response.status)
-      
       const data = await response.json()
-      console.log('Response data:', data)
 
       if (response.ok && data.success) {
         const userData = { 

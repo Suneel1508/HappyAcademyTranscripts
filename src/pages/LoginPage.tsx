@@ -30,8 +30,12 @@ const LoginPage: React.FC = () => {
     
     if (!success) {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-      if (!supabaseUrl || supabaseUrl.includes('your-project-id')) {
-        setError('Please connect to Supabase first. Click the "Connect to Supabase" button in the top right.')
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+      
+      if (!supabaseUrl || !supabaseAnonKey) {
+        setError('Supabase environment variables are missing. Please set up your .env file with valid Supabase credentials.')
+      } else if (supabaseUrl.includes('your-project-id') || supabaseAnonKey.includes('your-anon-key')) {
+        setError('Please update your .env file with actual Supabase credentials (not placeholder values).')
       } else {
         setError('Invalid email or password')
       }

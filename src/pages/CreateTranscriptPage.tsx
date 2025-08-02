@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { ArrowLeft, Plus, Trash2, Save, Download } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
-import { calculateComprehensiveGPA, type Course as GPACourse } from '../utils/gpaCalculator'
+import { calculateComprehensiveGPA, lookupGradePoints, type Course as GPACourse } from '../utils/gpaCalculator'
 
 interface Course {
   id: string

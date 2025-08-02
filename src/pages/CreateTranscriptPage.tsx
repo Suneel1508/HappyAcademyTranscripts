@@ -28,6 +28,12 @@ interface StudentInfo {
   curriculum_track: string
 }
 
+interface TranscriptInfo {
+  school_name: string
+  principal_name: string
+  signature_date: string
+}
+
 const CreateTranscriptPage: React.FC = () => {
   const { user } = useAuth()
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -35,6 +41,12 @@ const CreateTranscriptPage: React.FC = () => {
   const [isDownloading, setIsDownloading] = useState(false)
   const [savedTranscriptId, setSavedTranscriptId] = useState<string | null>(null)
   
+  const [transcriptInfo, setTranscriptInfo] = useState<TranscriptInfo>({
+    school_name: 'Happy Academy High School',
+    principal_name: 'Sangeetha Padman',
+    signature_date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  })
+
   const [studentInfo, setStudentInfo] = useState<StudentInfo>({
     first_name: '',
     last_name: '',
@@ -62,6 +74,21 @@ const CreateTranscriptPage: React.FC = () => {
 
   // Calculate GPA data
   const gpaData = calculateComprehensiveGPA(courses as GPACourse[])
+
+  // Calculate school-specific credits
+  const transcriptSchoolCredits = courses
+    .filter(course => course.school_name === transcriptInfo.school_name)
+    .reduce((sum, course) => sum + course.credits, 0)
+
+  const transferCredits = courses
+    .filter(course => course.school_name !== transcriptInfo.school_name)
+    .reduce((acc, course) => {
+      if (!acc[course.school_name]) {
+        acc[course.school_name] = 0
+      }
+      acc[course.school_name] += course.credits
+      return acc
+    }, {} as Record<string, number>)
 
   // Group courses by school and then by semester
   const groupedCourses = courses.reduce((acc, course) => {
@@ -110,15 +137,9 @@ const CreateTranscriptPage: React.FC = () => {
     setStudentInfo(prev => ({ ...prev, [field]: value }))
   }
 
-  const schoolOptions = [
-    'Legend College Preparatory',
-    'Happy Academy High School',
-    'Central High School',
-    'Westfield Academy',
-    'Lincoln High School',
-    'Roosevelt Preparatory',
-    'Other'
-  ]
+  const updateTranscriptInfo = (field: keyof TranscriptInfo, value: string) => {
+    setTranscriptInfo(prev => ({ ...prev, [field]: value }))
+  }
 
   const courseLevels: Course['course_level'][] = ['Regular', 'Honors', 'AP', 'College Level']
   const grades: Course['grade'][] = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'P', 'IP']
@@ -172,11 +193,12 @@ const CreateTranscriptPage: React.FC = () => {
     try {
       // Create transcript record
       const transcriptData = {
-        name: `${studentInfo.first_name} ${studentInfo.last_name} - Transcript`,
+        name: `${studentInfo.first_name} ${studentInfo.last_name} - ${transcriptInfo.school_name} Transcript`,
         student_name: `${studentInfo.first_name} ${studentInfo.last_name}`,
         student_ssn: studentInfo.ssn,
         data: {
           student: studentInfo,
+          transcript: transcriptInfo,
           courses: courses,
           gpa: gpaData
         },
@@ -255,6 +277,7 @@ const CreateTranscriptPage: React.FC = () => {
         body: JSON.stringify({
           transcriptId: transcriptId,
           studentInfo: studentInfo,
+          transcriptInfo: transcriptInfo,
           courses: courses,
           gpaData: gpaData
         }),
@@ -322,6 +345,52 @@ const CreateTranscriptPage: React.FC = () => {
             <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
               <h2 className="text-xl font-semibold text-gray-900 mb-6">Enter Student and Course Information</h2>
               
+              {/* Transcript Information */}
+              <div className="mb-8">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Transcript Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      School Name (Transcript Issuing School)
+                    </label>
+                    <input
+                      type="text"
+                      value={transcriptInfo.school_name}
+                      onChange={(e) => updateTranscriptInfo('school_name', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter school name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Principal Name
+                    </label>
+                    <input
+                      type="text"
+                      value={transcriptInfo.principal_name}
+                      onChange={(e) => updateTranscriptInfo('principal_name', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter principal name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Signature Date
+                    </label>
+                    <input
+                      type="date"
+                      value={transcriptInfo.signature_date.split(',')[0] ? new Date(transcriptInfo.signature_date).toISOString().split('T')[0] : ''}
+                      onChange={(e) => {
+                        const date = new Date(e.target.value)
+                        const formattedDate = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+                        updateTranscriptInfo('signature_date', formattedDate)
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* Student Information */}
               <div className="mb-8">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Student Information</h3>
@@ -515,18 +584,15 @@ const CreateTranscriptPage: React.FC = () => {
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             School Name
                           </label>
-                          <select
+                          <input
+                            type="text"
                             value={course.school_name}
                             onChange={(e) => updateCourse(course.id, 'school_name', e.target.value)}
                             className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                               errors[`course_${course.id}_school`] ? 'border-red-300 bg-red-50' : 'border-gray-300'
                             }`}
-                          >
-                            <option value="">Select school</option>
-                            {schoolOptions.map(school => (
-                              <option key={school} value={school}>{school}</option>
-                            ))}
-                          </select>
+                            placeholder="Enter school name"
+                          />
                           {errors[`course_${course.id}_school`] && (
                             <p className="mt-1 text-sm text-red-600">{errors[`course_${course.id}_school`]}</p>
                           )}
@@ -637,7 +703,7 @@ const CreateTranscriptPage: React.FC = () => {
                 <div className="text-center mb-6">
                   <div className="transcript-header">
                     <h1 className="text-lg font-bold text-black" style={{ letterSpacing: '2px' }}>
-                      LEGEND COLLEGE PREPARATORY TRANSCRIPT
+                      {transcriptInfo.school_name.toUpperCase()} TRANSCRIPT
                     </h1>
                   </div>
                   <div className="transcript-contact">
@@ -696,7 +762,7 @@ const CreateTranscriptPage: React.FC = () => {
                       </tr>
                       <tr>
                         <td>Cumulative GPA (Weighted): {gpaData.cumulativeWeightedGPA === 0 && gpaData.totalCredits === 0 ? 'N/A' : gpaData.cumulativeWeightedGPA.toFixed(3)}</td>
-                        <td>{gpaData.totalCredits.toFixed(0)} LEGEND COLLEGE PREPARATORY</td>
+                        <td>{transcriptSchoolCredits.toFixed(0)} {transcriptInfo.school_name.toUpperCase()}</td>
                       </tr>
                       <tr>
                         <th>Enrollment Summary</th>
@@ -717,18 +783,20 @@ const CreateTranscriptPage: React.FC = () => {
                                 <tr key={index}>
                                   <td className="border-0 p-1">{semester.year}</td>
                                   <td className="border-0 p-1">{semester.year - 2006}</td>
-                                  <td className="border-0 p-1">Legend College Preparatory</td>
+                                  <td className="border-0 p-1">{transcriptInfo.school_name}</td>
                                 </tr>
                               ))}
                             </tbody>
                           </table>
                         </td>
                         <td>
-                          {/* Transfer credits would go here */}
                           <div className="space-y-1">
-                            <div>150 Leigh High School</div>
-                            <div>50 Foothill College</div>
-                            <div>10 De Anza College</div>
+                            {Object.entries(transferCredits).map(([school, credits]) => (
+                              <div key={school}>{credits.toFixed(0)} {school}</div>
+                            ))}
+                            {Object.keys(transferCredits).length === 0 && (
+                              <div className="text-gray-500 text-xs">No transfer credits</div>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -886,26 +954,29 @@ const CreateTranscriptPage: React.FC = () => {
 
                 {/* Footer */}
                 <div className="mt-6 pt-3 border-t border-black">
-                  <div className="flex justify-between items-start text-xs text-black">
+                  <div className="flex justify-between items-center text-xs text-black">
                     {/* Left side - Comments/Legend Box */}
-                    <div className="border-2 border-black p-3" style={{ width: '300px' }}>
-                      <div className="border-b border-black pb-2 mb-2">
+                    <div className="border-2 border-black p-4" style={{ width: '350px', height: '180px' }}>
+                      <div className="bg-gray-100 border-b border-black pb-2 mb-3 -mx-4 -mt-4 px-4 pt-2">
                         <h4 className="font-bold">Comments</h4>
                       </div>
-                      <div className="space-y-1">
+                      <div className="space-y-2">
                         <p className="font-bold">UNOFFICIAL TRANSCRIPT</p>
                         <p>CL-College Level</p>
                         <p>IP- In Progress</p>
                         <p>P- Pass</p>
                         <p>F- Fail</p>
+                        <div className="mt-8 text-center text-gray-400 border border-gray-300 rounded p-4">
+                          <p className="text-xs">School Stamp Area</p>
+                        </div>
                       </div>
                     </div>
                     
                     {/* Right side - Principal Signature */}
-                    <div className="text-center" style={{ width: '300px' }}>
+                    <div className="text-center" style={{ width: '250px' }}>
                       <div className="border-b border-black w-full mb-2" style={{ height: '1px' }}></div>
-                      <p className="mb-1">Principal Signature: Sangeetha Padman</p>
-                      <p>Date: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                      <p className="mb-1">Principal Signature: {transcriptInfo.principal_name}</p>
+                      <p>Date: {transcriptInfo.signature_date}</p>
                     </div>
                   </div>
                 </div>

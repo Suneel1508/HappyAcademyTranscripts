@@ -9,6 +9,7 @@ const corsHeaders = {
 interface PDFRequest {
   transcriptId: string
   studentInfo: any
+  transcriptInfo: any
   courses: any[]
   gpaData: any
 }
@@ -105,6 +106,9 @@ Deno.serve(async (req: Request) => {
         .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid black; font-size: 12px; }
         .signature-section { float: right; text-align: right; }
         .signature-line { border-bottom: 1px solid black; width: 200px; margin: 10px 0; }
+        .comments-box { border: 2px solid black; padding: 16px; width: 350px; height: 180px; }
+        .comments-header { background: #f0f0f0; border-bottom: 1px solid black; padding: 8px; margin: -16px -16px 12px -16px; font-weight: bold; }
+        .stamp-area { margin-top: 32px; text-align: center; color: #999; border: 1px solid #ccc; border-radius: 4px; padding: 16px; }
         @media print {
             .watermark { position: fixed; }
         }
@@ -166,7 +170,22 @@ Deno.serve(async (req: Request) => {
   }
 })
 
-function generateTranscriptHTML(studentInfo: any, courses: any[], gpaData: any): string {
+function generateTranscriptHTML(studentInfo: any, transcriptInfo: any, courses: any[], gpaData: any): string {
+  // Calculate school-specific credits
+  const transcriptSchoolCredits = courses
+    .filter(course => course.school_name === transcriptInfo.school_name)
+    .reduce((sum, course) => sum + course.credits, 0)
+
+  const transferCredits = courses
+    .filter(course => course.school_name !== transcriptInfo.school_name)
+    .reduce((acc, course) => {
+      if (!acc[course.school_name]) {
+        acc[course.school_name] = 0
+      }
+      acc[course.school_name] += course.credits
+      return acc
+    }, {} as Record<string, number>)
+
   // Group courses by school and semester
   const groupedCourses = courses.reduce((acc, course) => {
     if (!course.school_name) return acc
@@ -186,7 +205,7 @@ function generateTranscriptHTML(studentInfo: any, courses: any[], gpaData: any):
 
   return `
     <div class="header">
-        <div class="title">LEGEND COLLEGE PREPARATORY TRANSCRIPT</div>
+        <div class="title">${transcriptInfo.school_name.toUpperCase()} TRANSCRIPT</div>
         <div class="contact">
             <p>123 Education Street, Learning City, LC 12345</p>
             <p>Phone: (555) 123-4567 | Email: registrar@legendprep.edu</p>
@@ -229,7 +248,40 @@ function generateTranscriptHTML(studentInfo: any, courses: any[], gpaData: any):
 
     <div class="section-title">GPA SUMMARY</div>
     <div class="gpa-summary">
-        <p><strong>Cumulative GPA (Weighted):</strong> ${gpaData.cumulativeWeightedGPA.toFixed(3)}</p>
+        <table style="width: 100%; border-collapse: collapse; border: 2px solid black;">
+            <tr>
+                <th style="border: 1px solid black; background: #f0f0f0; padding: 8px;">GPA Summary</th>
+                <th style="border: 1px solid black; background: #f0f0f0; padding: 8px;">Total Credit Completed</th>
+            </tr>
+            <tr>
+                <td style="border: 1px solid black; padding: 8px;">Cumulative GPA (Weighted): ${gpaData.cumulativeWeightedGPA.toFixed(3)}</td>
+                <td style="border: 1px solid black; padding: 8px;">${transcriptSchoolCredits.toFixed(0)} ${transcriptInfo.school_name.toUpperCase()}</td>
+            </tr>
+            <tr>
+                <th style="border: 1px solid black; background: #f0f0f0; padding: 8px;">Enrollment Summary</th>
+                <th style="border: 1px solid black; background: #f0f0f0; padding: 8px;">Total Credit Transferred</th>
+            </tr>
+            <tr>
+                <td style="border: 1px solid black; padding: 8px;">
+                    <table style="width: 100%; font-size: 10px;">
+                        <tr><th>Start/End Date</th><th>Grade</th><th>School</th></tr>
+                        ${gpaData.semesterGPAs.map((semester: any) => `
+                            <tr>
+                                <td>${semester.year}</td>
+                                <td>${semester.year - 2006}</td>
+                                <td>${transcriptInfo.school_name}</td>
+                            </tr>
+                        `).join('')}
+                    </table>
+                </td>
+                <td style="border: 1px solid black; padding: 8px;">
+                    ${Object.entries(transferCredits).map(([school, credits]) => `
+                        <div>${credits} ${school}</div>
+                    `).join('')}
+                    ${Object.keys(transferCredits).length === 0 ? '<div>No transfer credits</div>' : ''}
+                </td>
+            </tr>
+        </table>
     </div>
 
     <div class="section-title">ACADEMIC RECORD</div>
@@ -267,6 +319,30 @@ function generateTranscriptHTML(studentInfo: any, courses: any[], gpaData: any):
           `
         }).join('')}
     `).join('')}
+    
+    <div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid black; display: flex; justify-content: space-between; align-items: center;">
+        <!-- Comments Box -->
+        <div class="comments-box">
+            <div class="comments-header">Comments</div>
+            <div style="line-height: 1.6;">
+                <p style="font-weight: bold; margin: 8px 0;">UNOFFICIAL TRANSCRIPT</p>
+                <p style="margin: 4px 0;">CL-College Level</p>
+                <p style="margin: 4px 0;">IP- In Progress</p>
+                <p style="margin: 4px 0;">P- Pass</p>
+                <p style="margin: 4px 0;">F- Fail</p>
+                <div class="stamp-area">
+                    <p style="font-size: 10px;">School Stamp Area</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Principal Signature -->
+        <div style="text-align: center; width: 250px;">
+            <div style="border-bottom: 1px solid black; width: 100%; margin-bottom: 8px;"></div>
+            <p style="margin: 4px 0;">Principal Signature: ${transcriptInfo.principal_name}</p>
+            <p style="margin: 4px 0;">Date: ${transcriptInfo.signature_date}</p>
+        </div>
+    </div>
   `
 }
 

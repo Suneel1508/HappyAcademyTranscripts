@@ -30,6 +30,10 @@ interface StudentInfo {
 
 interface TranscriptInfo {
   school_name: string
+  school_address: string
+  school_phone: string
+  school_email: string
+  ceeb_code: string
   principal_name: string
   signature_date: string
 }
@@ -43,6 +47,10 @@ const CreateTranscriptPage: React.FC = () => {
   
   const [transcriptInfo, setTranscriptInfo] = useState<TranscriptInfo>({
     school_name: 'Happy Academy High School',
+    school_address: '21050 McClellan Road, Cupertino CA 95014',
+    school_phone: '4088650366',
+    school_email: 'transcript@legendcp.com',
+    ceeb_code: '054732',
     principal_name: 'Sangeetha Padman',
     signature_date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
   })
@@ -139,6 +147,14 @@ const CreateTranscriptPage: React.FC = () => {
 
   const updateTranscriptInfo = (field: keyof TranscriptInfo, value: string) => {
     setTranscriptInfo(prev => ({ ...prev, [field]: value }))
+  }
+
+  // Function to mask SSN - show only last 4 digits
+  const maskSSN = (ssn: string): string => {
+    if (!ssn || ssn.length < 4) return ssn
+    const lastFour = ssn.slice(-4)
+    const masked = 'XXX-XX-' + lastFour
+    return masked
   }
 
   const courseLevels: Course['course_level'][] = ['Regular', 'Honors', 'AP', 'College Level']
@@ -411,6 +427,54 @@ const CreateTranscriptPage: React.FC = () => {
                       placeholder="Enter school name"
                     />
                   </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      School Address
+                    </label>
+                    <input
+                      type="text"
+                      value={transcriptInfo.school_address}
+                      onChange={(e) => updateTranscriptInfo('school_address', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter school address"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      School Phone
+                    </label>
+                    <input
+                      type="text"
+                      value={transcriptInfo.school_phone}
+                      onChange={(e) => updateTranscriptInfo('school_phone', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter phone number"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      School Email
+                    </label>
+                    <input
+                      type="email"
+                      value={transcriptInfo.school_email}
+                      onChange={(e) => updateTranscriptInfo('school_email', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter email address"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      CEEB Code
+                    </label>
+                    <input
+                      type="text"
+                      value={transcriptInfo.ceeb_code}
+                      onChange={(e) => updateTranscriptInfo('ceeb_code', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter CEEB code"
+                    />
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Principal Name
@@ -558,14 +622,14 @@ const CreateTranscriptPage: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      SSN
+                      SSN (Optional)
                     </label>
                     <input
                       type="text"
                       value={studentInfo.ssn}
                       onChange={(e) => updateStudentInfo('ssn', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Enter SSN"
+                      placeholder="Enter SSN (optional)"
                     />
                   </div>
                   <div>
@@ -757,7 +821,7 @@ const CreateTranscriptPage: React.FC = () => {
                     </h1>
                   </div>
                   <div className="transcript-contact">
-                    <p>21050 McClellan Road, Cupertino CA 95014&nbsp;&nbsp;&nbsp;Tel: 4088650366&nbsp;&nbsp;&nbsp;Email: transcript@legendcp.com&nbsp;&nbsp;&nbsp;CEEB Code: 054732</p>
+                    <p>{transcriptInfo.school_address}&nbsp;&nbsp;&nbsp;Tel: {transcriptInfo.school_phone}&nbsp;&nbsp;&nbsp;Email: {transcriptInfo.school_email}&nbsp;&nbsp;&nbsp;CEEB Code: {transcriptInfo.ceeb_code}</p>
                   </div>
                 </div>
 
@@ -794,10 +858,12 @@ const CreateTranscriptPage: React.FC = () => {
                         <span className="transcript-student-label">Gender:</span>
                         <span>{studentInfo.gender || '[Gender]'}</span>
                       </div>
-                      <div className="transcript-student-row">
-                        <span className="transcript-student-label">SSN:</span>
-                        <span>{studentInfo.ssn || '[SSN]'}</span>
-                      </div>
+                      {studentInfo.ssn && (
+                        <div className="transcript-student-row">
+                          <span className="transcript-student-label">SSN:</span>
+                          <span>{maskSSN(studentInfo.ssn)}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

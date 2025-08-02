@@ -58,7 +58,7 @@ Deno.serve(async (req: Request) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // Generate HTML content for PDF
-    const htmlContent = generateTranscriptHTML(studentInfo, courses, gpaData)
+    const htmlContent = generateTranscriptHTML(studentInfo, transcriptInfo, courses, gpaData)
 
     // For now, return the HTML content as a simple PDF-like response
     // In a production environment, you would use a PDF generation library
@@ -203,12 +203,20 @@ function generateTranscriptHTML(studentInfo: any, transcriptInfo: any, courses: 
     return acc
   }, {} as Record<string, Record<string, any[]>>)
 
+  // Function to mask SSN - show only last 4 digits
+  const maskSSN = (ssn: string): string => {
+    if (!ssn || ssn.length < 4) return ssn
+    const lastFour = ssn.slice(-4)
+    const masked = 'XXX-XX-' + lastFour
+    return masked
+  }
+
   return `
     <div class="header">
         <div class="title">${transcriptInfo.school_name.toUpperCase()} TRANSCRIPT</div>
         <div class="contact">
-            <p>123 Education Street, Learning City, LC 12345</p>
-            <p>Phone: (555) 123-4567 | Email: registrar@legendprep.edu</p>
+            <p>${transcriptInfo.school_address}</p>
+            <p>Tel: ${transcriptInfo.school_phone} | Email: ${transcriptInfo.school_email} | CEEB Code: ${transcriptInfo.ceeb_code}</p>
         </div>
     </div>
 
@@ -239,10 +247,12 @@ function generateTranscriptHTML(studentInfo: any, transcriptInfo: any, courses: 
                 <td class="label">Gender:</td>
                 <td>${studentInfo.gender}</td>
             </tr>
+            ${studentInfo.ssn ? `
             <tr>
                 <td class="label">SSN:</td>
-                <td>${studentInfo.ssn}</td>
+                <td>${maskSSN(studentInfo.ssn)}</td>
             </tr>
+            ` : ''}
         </table>
     </div>
 

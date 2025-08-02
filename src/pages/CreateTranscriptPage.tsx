@@ -191,13 +191,57 @@ const CreateTranscriptPage: React.FC = () => {
 
     setIsSubmitting(true)
     try {
+      // First, save or update student record
+      const studentData = {
+        first_name: studentInfo.first_name,
+        last_name: studentInfo.last_name,
+        address: studentInfo.address,
+        date_of_birth: studentInfo.date_of_birth,
+        guardian_name: studentInfo.guardian_name || null,
+        student_number: studentInfo.student_number,
+        gender: studentInfo.gender || null,
+        ssn: studentInfo.ssn || null,
+        curriculum_track: studentInfo.curriculum_track || null
+      }
+
+      // Check if student already exists
+      const { data: existingStudent } = await supabase
+        .from('students')
+        .select('id')
+        .eq('student_number', studentInfo.student_number)
+        .single()
+
+      let studentId
+      if (existingStudent) {
+        // Update existing student
+        const { data: updatedStudent, error: updateError } = await supabase
+          .from('students')
+          .update(studentData)
+          .eq('id', existingStudent.id)
+          .select()
+          .single()
+
+        if (updateError) throw updateError
+        studentId = updatedStudent.id
+      } else {
+        // Create new student
+        const { data: newStudent, error: insertError } = await supabase
+          .from('students')
+          .insert([studentData])
+          .select()
+          .single()
+
+        if (insertError) throw insertError
+        studentId = newStudent.id
+      }
+
       // Create transcript record
       const transcriptData = {
-        name: `${studentInfo.first_name} ${studentInfo.last_name} - ${transcriptInfo.school_name} Transcript`,
+        name: `${studentInfo.first_name} ${studentInfo.last_name} - ${transcriptInfo.school_name}`,
         student_name: `${studentInfo.first_name} ${studentInfo.last_name}`,
         student_ssn: studentInfo.ssn,
         data: {
-          student: studentInfo,
+          student: { ...studentInfo, id: studentId },
           transcript: transcriptInfo,
           courses: courses,
           gpa: gpaData
@@ -252,16 +296,11 @@ const CreateTranscriptPage: React.FC = () => {
 
     setIsDownloading(true)
     try {
-      let transcriptId = savedTranscriptId
-
-      // Save transcript first if not already saved
-      if (!transcriptId) {
-        await handleSaveTranscript()
-        transcriptId = savedTranscriptId
-      }
-
-      if (!transcriptId) {
-        throw new Error('Failed to save transcript')
+      // Always save transcript first to ensure it's in database
+      await handleSaveTranscript()
+      
+      if (!savedTranscriptId) {
+        throw new Error('Failed to save transcript before generating PDF')
       }
 
       // Generate PDF
@@ -275,7 +314,7 @@ const CreateTranscriptPage: React.FC = () => {
           'Authorization': `Bearer ${supabaseAnonKey}`,
         },
         body: JSON.stringify({
-          transcriptId: transcriptId,
+          transcriptId: savedTranscriptId,
           studentInfo: studentInfo,
           transcriptInfo: transcriptInfo,
           courses: courses,
@@ -293,12 +332,13 @@ const CreateTranscriptPage: React.FC = () => {
       const a = document.createElement('a')
       a.style.display = 'none'
       a.href = url
-      a.download = `${studentInfo.first_name}_${studentInfo.last_name}_Transcript.pdf`
+      a.download = `${studentInfo.first_name}_${studentInfo.last_name}_${transcriptInfo.school_name.replace(/\s+/g, '_')}_Transcript.pdf`
       document.body.appendChild(a)
       a.click()
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
 
+      alert('PDF downloaded successfully! Transcript has been saved to your records.')
     } catch (error) {
       console.error('Error downloading PDF:', error)
       alert(`Error generating PDF: ${error instanceof Error ? error.message : 'Unknown error'}`)
@@ -327,12 +367,20 @@ const CreateTranscriptPage: React.FC = () => {
             </div>
             <div className="flex items-center space-x-4">
               <button className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200">
+                onClick={handleSaveTranscript}
+                disabled={isSubmitting}
                 <Save className="w-4 h-4 mr-2" />
                 {isSubmitting ? 'Saving...' : 'Save Transcript'}
               </button>
-            </div>
+              <button
                 onClick={handleDownloadPDF}
                 disabled={isDownloading}
+                className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors duration-200"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                {isDownloading ? 'Generating PDF...' : 'Download PDF'}
+              </button>
+            </div>
           </div>
         </div>
       </header>

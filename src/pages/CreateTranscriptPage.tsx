@@ -247,7 +247,11 @@ const CreateTranscriptPage: React.FC = () => {
           .single()
 
         if (insertError) throw insertError
-        studentId = newStudent.id
+        studentId = newStudents && newStudents.length > 0 ? newStudents[0].id : null
+        
+        if (!studentId) {
+          throw new Error('Failed to get student ID after creation')
+        }
       }
 
       // Create transcript record

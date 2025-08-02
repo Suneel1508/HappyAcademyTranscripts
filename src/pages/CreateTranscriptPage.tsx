@@ -225,7 +225,6 @@ const CreateTranscriptPage: React.FC = () => {
         .from('students')
         .select('id')
         .eq('student_number', studentInfo.student_number)
-        .single()
 
       let studentId
       if (existingStudent) {

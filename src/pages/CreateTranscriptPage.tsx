@@ -366,9 +366,11 @@ const CreateTranscriptPage: React.FC = () => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <button className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200">
+              <button
                 onClick={handleSaveTranscript}
                 disabled={isSubmitting}
+                className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
+              >
                 <Save className="w-4 h-4 mr-2" />
                 {isSubmitting ? 'Saving...' : 'Save Transcript'}
               </button>
